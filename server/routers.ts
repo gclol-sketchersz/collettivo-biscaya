@@ -3,6 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { emailPreferencesRouter } from "./routers/email-preferences";
+import { advancedSearchRouter } from "./routers/advanced-search";
 import {
   getAllActiveCalls,
   getCallsByLevel,
@@ -244,6 +245,11 @@ export const appRouter = router({
    * Email preferences management
    */
   emailPreferences: emailPreferencesRouter,
+
+  /**
+   * Advanced search and filtering
+   */
+  advancedSearch: advancedSearchRouter,
 });
 
 export type AppRouter = typeof appRouter;

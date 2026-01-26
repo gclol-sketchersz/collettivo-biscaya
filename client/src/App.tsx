@@ -11,6 +11,7 @@ import CallDetail from "./pages/CallDetail";
 import Subscriptions from "./pages/Subscriptions";
 import Admin from "./pages/Admin";
 import EmailPreferences from "./pages/EmailPreferences";
+import AdvancedSearch from "./pages/AdvancedSearch";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -23,6 +24,7 @@ function Router() {
       <Route path="/email-preferences" component={EmailPreferences} />
       <Route path="/calls" component={Calls} />
       <Route path="/calls/:id" component={CallDetail} />
+      <Route path="/advanced-search" component={AdvancedSearch} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

@@ -77,3 +77,17 @@
 - [x] API tRPC per gestione preferenze email
 - [x] Pagina preferenze notifiche nel dashboard
 - [x] Test per sistema email (21 test totali, tutti passanti)
+
+
+## Advanced Filtering System
+- [x] Estensione schema con campi budget min/max
+- [x] API tRPC per ricerca con ordinamento avanzato
+- [x] Filtri per budget (range slider)
+- [x] Filtri per area geografica (multi-select)
+- [x] Filtri per data scadenza (date range picker)
+- [x] Ordinamento per budget crescente/decrescente
+- [x] Ordinamento per scadenza prossima
+- [x] Ordinamento per rilevanza
+- [x] UI filtri avanzati nella pagina ricerca
+- [x] Pagina ricerca avanzata con sidebar filtri
+- [x] Test per sistema filtraggio (13 test passanti)
