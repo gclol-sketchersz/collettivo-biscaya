@@ -57,3 +57,23 @@
 - [ ] Pubblicazione
 
 ---
+
+## Email Notifications System
+- [ ] Estensione schema database con tabella email_preferences
+- [ ] Integrazione con servizio email (Resend o Nodemailer)
+- [ ] Template email per nuovi bandi
+- [ ] Template email per scadenze imminenti
+- [ ] Job scheduler per invio notifiche periodiche
+- [ ] API tRPC per gestione preferenze email
+- [ ] Pagina preferenze notifiche nel dashboard
+- [ ] Test per sistema email
+
+## Email Notifications System (COMPLETATO)
+- [x] Estensione schema database con tabella email_preferences
+- [x] Integrazione con servizio email (Nodemailer)
+- [x] Template email per nuovi bandi
+- [x] Template email per scadenze imminenti
+- [x] Job scheduler per invio notifiche periodiche
+- [x] API tRPC per gestione preferenze email
+- [x] Pagina preferenze notifiche nel dashboard
+- [x] Test per sistema email (21 test totali, tutti passanti)

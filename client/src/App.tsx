@@ -10,6 +10,7 @@ import Calls from "./pages/Calls";
 import CallDetail from "./pages/CallDetail";
 import Subscriptions from "./pages/Subscriptions";
 import Admin from "./pages/Admin";
+import EmailPreferences from "./pages/EmailPreferences";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -19,6 +20,7 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/subscriptions" component={Subscriptions} />
       <Route path="/admin" component={Admin} />
+      <Route path="/email-preferences" component={EmailPreferences} />
       <Route path="/calls" component={Calls} />
       <Route path="/calls/:id" component={CallDetail} />
       <Route path="/404" component={NotFound} />

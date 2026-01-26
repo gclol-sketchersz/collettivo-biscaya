@@ -2,6 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
+import { emailPreferencesRouter } from "./routers/email-preferences";
 import {
   getAllActiveCalls,
   getCallsByLevel,
@@ -238,6 +239,11 @@ export const appRouter = router({
         return { success: true };
       }),
   }),
+
+  /**
+   * Email preferences management
+   */
+  emailPreferences: emailPreferencesRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -97,3 +97,21 @@ export const notifications = mysqlTable("notifications", {
 
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = typeof notifications.$inferInsert;
+
+/**
+ * Email preferences for users
+ */
+export const emailPreferences = mysqlTable("email_preferences", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  newCallsNotification: int("newCallsNotification").default(1).notNull(),
+  deadlineReminderNotification: int("deadlineReminderNotification").default(1).notNull(),
+  deadlineReminderDays: int("deadlineReminderDays").default(7).notNull(),
+  notificationFrequency: varchar("notificationFrequency", { length: 20 }).default("daily").notNull(),
+  lastEmailSent: timestamp("lastEmailSent"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EmailPreferences = typeof emailPreferences.$inferSelect;
+export type InsertEmailPreferences = typeof emailPreferences.$inferInsert;

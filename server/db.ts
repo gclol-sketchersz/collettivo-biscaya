@@ -1,6 +1,6 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, gte, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, subscriptions, callsForEntries, savedCalls, notifications } from "../drizzle/schema";
+import { InsertUser, users, subscriptions, callsForEntries, savedCalls, notifications, emailPreferences } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -294,6 +294,185 @@ export async function createNotification(
     return true;
   } catch (error) {
     console.error("Failed to create notification:", error);
+    return false;
+  }
+}
+
+
+/**
+ * Get or create email preferences for user
+ */
+export async function getOrCreateEmailPreferences(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  try {
+    const existing = await db
+      .select()
+      .from(emailPreferences)
+      .where(eq(emailPreferences.userId, userId))
+      .limit(1);
+
+    if (existing.length > 0) {
+      return existing[0];
+    }
+
+    // Create default preferences
+    await db.insert(emailPreferences).values({
+      userId,
+      newCallsNotification: 1,
+      deadlineReminderNotification: 1,
+      deadlineReminderDays: 7,
+      notificationFrequency: "daily",
+    });
+
+    const created = await db
+      .select()
+      .from(emailPreferences)
+      .where(eq(emailPreferences.userId, userId))
+      .limit(1);
+
+    return created[0] || null;
+  } catch (error) {
+    console.error("Failed to get/create email preferences:", error);
+    return null;
+  }
+}
+
+/**
+ * Update email preferences
+ */
+export async function updateEmailPreferences(
+  userId: number,
+  updates: Partial<{
+    newCallsNotification: number;
+    deadlineReminderNotification: number;
+    deadlineReminderDays: number;
+    notificationFrequency: string;
+  }>
+) {
+  const db = await getDb();
+  if (!db) return false;
+
+  try {
+    await db
+      .update(emailPreferences)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(emailPreferences.userId, userId));
+    return true;
+  } catch (error) {
+    console.error("Failed to update email preferences:", error);
+    return false;
+  }
+}
+
+/**
+ * Get users who should receive new call notifications
+ */
+export async function getUsersForNewCallNotifications() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select({
+      userId: users.id,
+      email: users.email,
+      name: users.name,
+      preferences: emailPreferences,
+    })
+    .from(users)
+    .innerJoin(
+      emailPreferences,
+      and(
+        eq(emailPreferences.userId, users.id),
+        eq(emailPreferences.newCallsNotification, 1)
+      )
+    );
+}
+
+/**
+ * Get users who should receive deadline reminder notifications
+ */
+export async function getUsersForDeadlineReminders() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select({
+      userId: users.id,
+      email: users.email,
+      name: users.name,
+      preferences: emailPreferences,
+    })
+    .from(users)
+    .innerJoin(
+      emailPreferences,
+      and(
+        eq(emailPreferences.userId, users.id),
+        eq(emailPreferences.deadlineReminderNotification, 1)
+      )
+    );
+}
+
+/**
+ * Get calls with upcoming deadlines
+ */
+export async function getCallsWithUpcomingDeadlines(daysAhead: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const now = new Date();
+  const futureDate = new Date(now.getTime() + daysAhead * 24 * 60 * 60 * 1000);
+
+  return await db
+    .select()
+    .from(callsForEntries)
+    .where(
+      and(
+        eq(callsForEntries.isActive, 1),
+        gte(callsForEntries.deadline, now),
+        lte(callsForEntries.deadline, futureDate)
+      )
+    )
+    .orderBy(callsForEntries.deadline);
+}
+
+/**
+ * Get recently added calls
+ */
+export async function getRecentlyAddedCalls(hoursAgo: number = 24) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const cutoffTime = new Date(Date.now() - hoursAgo * 60 * 60 * 1000);
+
+  return await db
+    .select()
+    .from(callsForEntries)
+    .where(
+      and(
+        eq(callsForEntries.isActive, 1),
+        gte(callsForEntries.createdAt, cutoffTime)
+      )
+    )
+    .orderBy(desc(callsForEntries.createdAt));
+}
+
+/**
+ * Update last email sent timestamp
+ */
+export async function updateLastEmailSent(userId: number) {
+  const db = await getDb();
+  if (!db) return false;
+
+  try {
+    await db
+      .update(emailPreferences)
+      .set({ lastEmailSent: new Date() })
+      .where(eq(emailPreferences.userId, userId));
+    return true;
+  } catch (error) {
+    console.error("Failed to update last email sent:", error);
     return false;
   }
 }
