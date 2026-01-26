@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, subscriptions, callsForEntries, savedCalls, notifications } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,211 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+/**
+ * Get user's current subscription
+ */
+export async function getUserSubscription(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select()
+    .from(subscriptions)
+    .where(eq(subscriptions.userId, userId))
+    .orderBy(desc(subscriptions.createdAt))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : undefined;
+}
+
+/**
+ * Get all active calls for entries
+ */
+export async function getAllActiveCalls() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(callsForEntries)
+    .where(eq(callsForEntries.isActive, 1))
+    .orderBy(desc(callsForEntries.deadline));
+}
+
+/**
+ * Get calls filtered by geographic level
+ */
+export async function getCallsByLevel(level: "regional" | "national" | "european") {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(callsForEntries)
+    .where(
+      and(
+        eq(callsForEntries.isActive, 1),
+        eq(callsForEntries.geographicLevel, level)
+      )
+    )
+    .orderBy(desc(callsForEntries.deadline));
+}
+
+/**
+ * Get call by ID
+ */
+export async function getCallById(callId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select()
+    .from(callsForEntries)
+    .where(eq(callsForEntries.id, callId))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : undefined;
+}
+
+/**
+ * Get user's saved calls
+ */
+export async function getUserSavedCalls(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(callsForEntries)
+    .innerJoin(savedCalls, eq(savedCalls.callId, callsForEntries.id))
+    .where(eq(savedCalls.userId, userId));
+}
+
+/**
+ * Save a call for user
+ */
+export async function saveCallForUser(userId: number, callId: number) {
+  const db = await getDb();
+  if (!db) return false;
+
+  try {
+    await db.insert(savedCalls).values({ userId, callId });
+    return true;
+  } catch (error) {
+    console.error("Failed to save call:", error);
+    return false;
+  }
+}
+
+/**
+ * Remove saved call
+ */
+export async function removeSavedCall(userId: number, callId: number) {
+  const db = await getDb();
+  if (!db) return false;
+
+  try {
+    await db
+      .delete(savedCalls)
+      .where(and(eq(savedCalls.userId, userId), eq(savedCalls.callId, callId)));
+    return true;
+  } catch (error) {
+    console.error("Failed to remove saved call:", error);
+    return false;
+  }
+}
+
+/**
+ * Create or update user subscription
+ */
+export async function upsertSubscription(
+  userId: number,
+  level: "base" | "premium" | "pro"
+) {
+  const db = await getDb();
+  if (!db) return false;
+
+  try {
+    await db
+      .insert(subscriptions)
+      .values({
+        userId,
+        level,
+        startDate: new Date(),
+        isActive: 1,
+      })
+      .onDuplicateKeyUpdate({
+        set: {
+          level,
+          updatedAt: new Date(),
+        },
+      });
+    return true;
+  } catch (error) {
+    console.error("Failed to upsert subscription:", error);
+    return false;
+  }
+}
+
+/**
+ * Get user notifications
+ */
+export async function getUserNotifications(userId: number, limit = 10) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.userId, userId))
+    .orderBy(desc(notifications.createdAt))
+    .limit(limit);
+}
+
+/**
+ * Mark notification as read
+ */
+export async function markNotificationAsRead(notificationId: number) {
+  const db = await getDb();
+  if (!db) return false;
+
+  try {
+    await db
+      .update(notifications)
+      .set({ isRead: 1 })
+      .where(eq(notifications.id, notificationId));
+    return true;
+  } catch (error) {
+    console.error("Failed to mark notification as read:", error);
+    return false;
+  }
+}
+
+/**
+ * Create notification
+ */
+export async function createNotification(
+  userId: number,
+  type: "new_call" | "deadline_reminder" | "subscription_update",
+  title: string,
+  message?: string,
+  callId?: number
+) {
+  const db = await getDb();
+  if (!db) return false;
+
+  try {
+    await db.insert(notifications).values({
+      userId,
+      type,
+      title,
+      message,
+      callId,
+      isRead: 0,
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to create notification:", error);
+    return false;
+  }
+}
