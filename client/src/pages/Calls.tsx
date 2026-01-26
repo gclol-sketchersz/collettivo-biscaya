@@ -17,13 +17,13 @@ import { Link } from "wouter";
 export default function Calls() {
   const { user } = useAuth();
   const [query, setQuery] = useState("");
-  const [callType, setCallType] = useState<string>("");
-  const [geographicLevel, setGeographicLevel] = useState<string>("");
+  const [callType, setCallType] = useState<string>("all");
+  const [geographicLevel, setGeographicLevel] = useState<string>("all");
 
   const { data: calls = [], isLoading } = trpc.calls.search.useQuery({
     query: query || undefined,
-    callType: (callType as any) || undefined,
-    geographicLevel: (geographicLevel as any) || undefined,
+    callType: callType && callType !== "all" ? (callType as any) : undefined,
+    geographicLevel: geographicLevel && geographicLevel !== "all" ? (geographicLevel as any) : undefined,
   });
 
   const { data: savedCalls = [] } = trpc.savedCalls.getAll.useQuery();
@@ -123,7 +123,7 @@ export default function Calls() {
                       <SelectValue placeholder="Tutte le tipologie" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Tutte</SelectItem>
+                      <SelectItem value="all">Tutte</SelectItem>
                       <SelectItem value="exhibition">Mostra</SelectItem>
                       <SelectItem value="residency">Residenza d'artista</SelectItem>
                       <SelectItem value="competition">Concorso</SelectItem>
@@ -147,7 +147,7 @@ export default function Calls() {
                       <SelectValue placeholder="Tutti i livelli" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Tutti</SelectItem>
+                      <SelectItem value="all">Tutti</SelectItem>
                       <SelectItem value="regional">Regionale</SelectItem>
                       <SelectItem value="national">Nazionale</SelectItem>
                       <SelectItem value="european">Europeo</SelectItem>
@@ -160,8 +160,8 @@ export default function Calls() {
                   className="w-full"
                   onClick={() => {
                     setQuery("");
-                    setCallType("");
-                    setGeographicLevel("");
+                    setCallType("all");
+                    setGeographicLevel("all");
                   }}
                 >
                   Azzera filtri
@@ -185,8 +185,8 @@ export default function Calls() {
                   variant="outline"
                   onClick={() => {
                     setQuery("");
-                    setCallType("");
-                    setGeographicLevel("");
+                    setCallType("all");
+                    setGeographicLevel("all");
                   }}
                 >
                   Azzera filtri
