@@ -100,3 +100,7 @@
 - [x] Logout dal menù
 - [x] Styling marino per il menù
 - [ ] Test per admin access control
+
+## Quick Home Button
+- [x] Aggiungere tasto Home nel menù a tendina
+- [x] Link rapido alla home page da qualsiasi sezione

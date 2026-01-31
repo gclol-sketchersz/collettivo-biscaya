@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Waves, LogOut, Settings, BarChart3, Users, Mail, CreditCard } from "lucide-react";
+import { Waves, LogOut, Settings, BarChart3, Users, Mail, CreditCard, Home } from "lucide-react";
 
 export default function NavMenu() {
   const { isAuthenticated, user } = useAuth();
@@ -41,6 +41,14 @@ export default function NavMenu() {
           {user?.name || "Menu"}
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-border" />
+
+        {/* Home Button */}
+        <Link href="/">
+          <DropdownMenuItem className="cursor-pointer hover:bg-primary/10 text-foreground">
+            <Home className="w-4 h-4 mr-2 text-primary" />
+            <span>Home</span>
+          </DropdownMenuItem>
+        </Link>
 
         {/* Main Navigation */}
         <Link href="/calls">
