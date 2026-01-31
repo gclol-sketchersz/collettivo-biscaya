@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Anchor, Waves, Compass, Zap, Lock, Globe } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { Link } from "wouter";
+import NavMenu from "@/components/NavMenu";
 
 export default function Home() {
   const { isAuthenticated, user } = useAuth();
@@ -14,15 +15,12 @@ export default function Home() {
       <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
         <div className="container flex items-center justify-between py-4">
           <div className="flex items-center gap-2">
-            <Waves className="w-6 h-6 text-primary" />
+            <NavMenu />
             <span className="text-xl font-bold text-foreground">Collettivo Biscaya</span>
           </div>
           <div className="flex items-center gap-4">
             {isAuthenticated ? (
               <>
-                <Link href="/dashboard">
-                  <Button variant="ghost">Dashboard</Button>
-                </Link>
                 <span className="text-sm text-muted-foreground">{user?.name}</span>
               </>
             ) : (

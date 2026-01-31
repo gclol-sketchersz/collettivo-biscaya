@@ -91,3 +91,12 @@
 - [x] UI filtri avanzati nella pagina ricerca
 - [x] Pagina ricerca avanzata con sidebar filtri
 - [x] Test per sistema filtraggio (13 test passanti)
+
+
+## Admin Profile & Navigation Menu
+- [x] Promozione utente a admin nel database (automatica per owner)
+- [x] Menù a tendina dal logo con navigazione
+- [x] Link alle sezioni: Dashboard, Bandi, Admin, Preferenze Email, Sottoscrizioni
+- [x] Logout dal menù
+- [x] Styling marino per il menù
+- [ ] Test per admin access control
