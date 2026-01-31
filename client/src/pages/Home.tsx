@@ -132,7 +132,7 @@ export default function Home() {
           {[
             {
               name: "Base",
-              price: "Gratuito",
+              price: "€30/mese",
               color: "blue",
               features: [
                 "Bandi regionali",
@@ -144,7 +144,7 @@ export default function Home() {
             },
             {
               name: "Premium",
-              price: "€9/mese",
+              price: "€50/mese",
               color: "purple",
               features: [
                 "Tutto di Base +",
@@ -157,7 +157,7 @@ export default function Home() {
             },
             {
               name: "Pro",
-              price: "€19/mese",
+              price: "€90/mese",
               color: "amber",
               features: [
                 "Tutto di Premium +",
