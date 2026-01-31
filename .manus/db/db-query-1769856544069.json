@@ -1,0 +1,70 @@
+{
+  "query": "SELECT u.id, u.name, u.role, s.level FROM users u LEFT JOIN subscriptions s ON u.id = s.userId WHERE u.role = 'admin';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4Eu8qizdpHjVgc9.root --database 3ULjLoxa7T9u6LwkiqmLfY --execute SELECT u.id, u.name, u.role, s.level FROM users u LEFT JOIN subscriptions s ON u.id = s.userId WHERE u.role = 'admin';",
+  "rows": [
+    {
+      "id": "1",
+      "name": "giorgio ciaravolol",
+      "role": "admin",
+      "level": "pro"
+    },
+    {
+      "id": "1",
+      "name": "giorgio ciaravolol",
+      "role": "admin",
+      "level": "pro"
+    },
+    {
+      "id": "1",
+      "name": "giorgio ciaravolol",
+      "role": "admin",
+      "level": "pro"
+    },
+    {
+      "id": "1",
+      "name": "giorgio ciaravolol",
+      "role": "admin",
+      "level": "pro"
+    },
+    {
+      "id": "1",
+      "name": "giorgio ciaravolol",
+      "role": "admin",
+      "level": "pro"
+    },
+    {
+      "id": "1",
+      "name": "giorgio ciaravolol",
+      "role": "admin",
+      "level": "pro"
+    },
+    {
+      "id": "1",
+      "name": "giorgio ciaravolol",
+      "role": "admin",
+      "level": "pro"
+    },
+    {
+      "id": "1",
+      "name": "giorgio ciaravolol",
+      "role": "admin",
+      "level": "pro"
+    },
+    {
+      "id": "1",
+      "name": "giorgio ciaravolol",
+      "role": "admin",
+      "level": "pro"
+    },
+    {
+      "id": "1",
+      "name": "giorgio ciaravolol",
+      "role": "admin",
+      "level": "pro"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\trole\tlevel\n1\tgiorgio ciaravolol\tadmin\tpro\n1\tgiorgio ciaravolol\tadmin\tpro\n1\tgiorgio ciaravolol\tadmin\tpro\n1\tgiorgio ciaravolol\tadmin\tpro\n1\tgiorgio ciaravolol\tadmin\tpro\n1\tgiorgio ciaravolol\tadmin\tpro\n1\tgiorgio ciaravolol\tadmin\tpro\n1\tgiorgio ciaravolol\tadmin\tpro\n1\tgiorgio ciaravolol\tadmin\tpro\n1\tgiorgio ciaravolol\tadmin\tpro\n",
+  "stderr": "",
+  "execution_time_ms": 60
+}

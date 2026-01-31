@@ -108,3 +108,7 @@
 ## Home Button in Dashboard
 - [x] Aggiungere tasto Home nella Dashboard
 - [x] Link rapido alla home page dalla Dashboard
+
+
+## User Subscription Upgrade
+- [x] Aggiornare il livello di sottoscrizione dell'utente owner a Pro
