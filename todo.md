@@ -104,3 +104,7 @@
 ## Quick Home Button
 - [x] Aggiungere tasto Home nel menù a tendina
 - [x] Link rapido alla home page da qualsiasi sezione
+
+## Home Button in Dashboard
+- [x] Aggiungere tasto Home nella Dashboard
+- [x] Link rapido alla home page dalla Dashboard
