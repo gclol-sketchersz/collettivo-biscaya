@@ -112,3 +112,10 @@
 
 ## User Subscription Upgrade
 - [x] Aggiornare il livello di sottoscrizione dell'utente owner a Pro
+
+
+## Update Calls Database
+- [x] Ricerca bandi 2026 "Fondazione Italia Patria della Bellezza"
+- [x] Ricerca bando open call curatoriale regionale/nazionale
+- [x] Sostituzione Casasanvito con Fondazione Italia Patria della Bellezza
+- [x] Sostituzione Magic Carpets con bando curatoriale

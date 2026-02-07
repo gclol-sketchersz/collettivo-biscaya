@@ -73,16 +73,16 @@ describe("calls router", () => {
   });
 
   it("should search calls by query", async () => {
-    const { ctx } = createPublicContext();
+    const { ctx } = createAuthContext();
     const caller = appRouter.createCaller(ctx);
 
     const results = await caller.calls.search({
-      query: "Casasanvito",
+      query: "Fondazione Italia Patria della Bellezza",
     });
 
     expect(Array.isArray(results)).toBe(true);
     expect(results.length).toBeGreaterThan(0);
-    expect(results[0].title).toContain("Casasanvito");
+    expect(results[0].title).toContain("Bando 2026 - Comunicazione Strategica e Branding");
   });
 
   it("should filter calls by type", async () => {

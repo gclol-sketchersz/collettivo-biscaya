@@ -1,0 +1,16 @@
+{
+  "query": "SHOW TABLES LIKE '%call%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4Eu8qizdpHjVgc9.root --database 3ULjLoxa7T9u6LwkiqmLfY --execute SHOW TABLES LIKE '%call%';",
+  "rows": [
+    {
+      "Tables_in_3ULjLoxa7T9u6LwkiqmLfY (%call%)": "calls_for_entries"
+    },
+    {
+      "Tables_in_3ULjLoxa7T9u6LwkiqmLfY (%call%)": "saved_calls"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_3ULjLoxa7T9u6LwkiqmLfY (%call%)\ncalls_for_entries\nsaved_calls\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}
