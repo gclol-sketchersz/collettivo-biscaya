@@ -28,7 +28,7 @@ export default function Subscriptions() {
     {
       name: "Base",
       level: "base" as const,
-      price: "Gratuito",
+      price: "€30/mese",
       description: "Perfetto per iniziare",
       features: [
         "Bandi regionali",
@@ -42,7 +42,7 @@ export default function Subscriptions() {
     {
       name: "Premium",
       level: "premium" as const,
-      price: "€9/mese",
+      price: "€50/mese",
       description: "Per professionisti",
       features: [
         "Tutto di Base +",
@@ -57,7 +57,7 @@ export default function Subscriptions() {
     {
       name: "Pro",
       level: "pro" as const,
-      price: "€19/mese",
+      price: "€90/mese",
       description: "Accesso completo",
       features: [
         "Tutto di Premium +",
@@ -109,10 +109,10 @@ export default function Subscriptions() {
               </div>
               <div className={`badge-${currentLevel} px-6 py-3 rounded-lg text-lg font-semibold`}>
                 {currentLevel === "base"
-                  ? "Gratuito"
+                  ? "€30/mese"
                   : currentLevel === "premium"
-                  ? "€9/mese"
-                  : "€19/mese"}
+                  ? "€50/mese"
+                  : "€90/mese"}
               </div>
             </div>
           </Card>

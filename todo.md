@@ -138,3 +138,11 @@
 - [x] Dashboard statistiche per admin
 - [x] Link a Statistiche nel menù admin
 - [ ] Test per statistiche
+
+
+## Update Pricing Across All Pages
+- [x] Aggiornare prezzi nella pagina Subscriptions (€30/€50/€90)
+- [x] Aggiornare prezzi nella pagina Home (€30/€50/€90)
+- [x] Aggiornare logica pulsante Base nella Home
+- [x] Aggiornare display piano attuale nella Subscriptions
+- [x] Verificare coerenza prezzi in tutte le pagine

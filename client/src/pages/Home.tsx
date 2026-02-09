@@ -195,7 +195,7 @@ export default function Home() {
                 className={tier.highlight ? "btn-marine w-full" : "w-full"}
                 variant={tier.highlight ? "default" : "outline"}
               >
-                {tier.price === "Gratuito" ? "Inizia Ora" : "Sottoscrivi"}
+                {tier.price === "€30/mese" ? "Inizia Ora" : "Sottoscrivi"}
               </Button>
             </Card>
           ))}
