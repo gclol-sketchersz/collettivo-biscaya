@@ -119,3 +119,22 @@
 - [x] Ricerca bando open call curatoriale regionale/nazionale
 - [x] Sostituzione Casasanvito con Fondazione Italia Patria della Bellezza
 - [x] Sostituzione Magic Carpets con bando curatoriale
+
+
+## RSS Import System
+- [x] Estensione schema con tabella rss_feeds e rss_imports
+- [x] Parser RSS per feed Exibart e On the Move
+- [x] Job scheduler per importazione automatica giornaliera
+- [x] Logica di deduplicazione bandi importati
+- [x] Procedure tRPC per gestire feed RSS
+- [ ] Test per importazione RSS
+
+## Dashboard Statistics
+- [x] Estensione schema con tabella call_views e call_interactions
+- [x] Tracking visualizzazioni bandi
+- [x] Tracking candidature/click link esterno
+- [x] API per statistiche aggregati
+- [x] Componenti grafici con Recharts
+- [x] Dashboard statistiche per admin
+- [x] Link a Statistiche nel menù admin
+- [ ] Test per statistiche

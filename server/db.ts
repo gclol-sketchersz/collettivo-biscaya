@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, subscriptions, callsForEntries, savedCalls, notifications, emailPreferences } from "../drizzle/schema";
+import { InsertUser, users, subscriptions, callsForEntries, savedCalls, notifications, emailPreferences, rssFeeds, rssImports, callViews, callInteractions, InsertRssFeed } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -475,4 +475,112 @@ export async function updateLastEmailSent(userId: number) {
     console.error("Failed to update last email sent:", error);
     return false;
   }
+}
+
+
+/**
+ * RSS Feeds Management
+ */
+export async function getRssFeeds() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(rssFeeds).where(eq(rssFeeds.isActive, 1));
+}
+
+export async function createRssFeed(feed: InsertRssFeed) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.insert(rssFeeds).values(feed);
+  return result;
+}
+
+/**
+ * Call Views & Interactions Tracking
+ */
+export async function trackCallView(callId: number, userId?: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  return await db.insert(callViews).values({ callId, userId });
+}
+
+export async function trackCallInteraction(callId: number, interactionType: string, userId?: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  return await db.insert(callInteractions).values({
+    callId,
+    userId,
+    interactionType: interactionType as any,
+  });
+}
+
+/**
+ * Statistics
+ */
+export async function getCallStatistics(callId: number) {
+  const db = await getDb();
+  if (!db) return { views: 0, saves: 0, clicks: 0 };
+  
+  const views = await db.select().from(callViews).where(eq(callViews.callId, callId));
+  const interactions = await db.select().from(callInteractions).where(eq(callInteractions.callId, callId));
+  
+  const saves = interactions.filter(i => i.interactionType === 'save').length;
+  const clicks = interactions.filter(i => i.interactionType === 'external_link_click').length;
+  
+  return {
+    views: views.length,
+    saves,
+    clicks,
+    conversionRate: views.length > 0 ? ((saves + clicks) / views.length * 100).toFixed(2) : 0,
+  };
+}
+
+export async function getDashboardStatistics() {
+  const db = await getDb();
+  if (!db) return { totalViews: 0, totalSaves: 0, totalClicks: 0, avgConversionRate: 0 };
+  
+  const allViews = await db.select().from(callViews);
+  const allInteractions = await db.select().from(callInteractions);
+  
+  const totalSaves = allInteractions.filter(i => i.interactionType === 'save').length;
+  const totalClicks = allInteractions.filter(i => i.interactionType === 'external_link_click').length;
+  const totalViews = allViews.length;
+  
+  return {
+    totalViews,
+    totalSaves,
+    totalClicks,
+    avgConversionRate: totalViews > 0 ? ((totalSaves + totalClicks) / totalViews * 100).toFixed(2) : 0,
+  };
+}
+
+export async function getCallsStatisticsByType() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const calls = await db.select().from(callsForEntries);
+  const views = await db.select().from(callViews);
+  const interactions = await db.select().from(callInteractions);
+  
+  const stats = calls.map(call => {
+    const callViews = views.filter(v => v.callId === call.id).length;
+    const callInteractions = interactions.filter(i => i.callId === call.id);
+    const saves = callInteractions.filter(i => i.interactionType === 'save').length;
+    const clicks = callInteractions.filter(i => i.interactionType === 'external_link_click').length;
+    
+    return {
+      callId: call.id,
+      title: call.title,
+      callType: call.callType,
+      views: callViews,
+      saves,
+      clicks,
+      conversionRate: callViews > 0 ? ((saves + clicks) / callViews * 100).toFixed(2) : 0,
+    };
+  });
+  
+  return stats;
 }

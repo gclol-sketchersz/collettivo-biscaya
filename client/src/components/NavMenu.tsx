@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Waves, LogOut, Settings, BarChart3, Users, Mail, CreditCard, Home } from "lucide-react";
+import { Waves, LogOut, Settings, BarChart3, Users, Mail, CreditCard, Home, TrendingUp } from "lucide-react";
 
 export default function NavMenu() {
   const { isAuthenticated, user } = useAuth();
@@ -71,6 +71,15 @@ export default function NavMenu() {
             <span>Ricerca Avanzata</span>
           </DropdownMenuItem>
         </Link>
+
+        {isAdmin && (
+          <Link href="/statistics">
+            <DropdownMenuItem className="cursor-pointer hover:bg-primary/10 text-foreground">
+              <TrendingUp className="w-4 h-4 mr-2 text-primary" />
+              <span>Statistiche</span>
+            </DropdownMenuItem>
+          </Link>
+        )}
 
         <DropdownMenuSeparator className="bg-border" />
 

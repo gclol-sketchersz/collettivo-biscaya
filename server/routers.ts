@@ -4,6 +4,8 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { emailPreferencesRouter } from "./routers/email-preferences";
 import { advancedSearchRouter } from "./routers/advanced-search";
+import { statisticsRouter } from "./routers/statistics";
+import { rssRouter } from "./routers/rss";
 import {
   getAllActiveCalls,
   getCallsByLevel,
@@ -250,6 +252,16 @@ export const appRouter = router({
    * Advanced search and filtering
    */
   advancedSearch: advancedSearchRouter,
+
+  /**
+   * Statistics
+   */
+  statistics: statisticsRouter,
+
+  /**
+   * RSS Import
+   */
+  rss: rssRouter,
 });
 
 export type AppRouter = typeof appRouter;

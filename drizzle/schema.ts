@@ -118,3 +118,61 @@ export const emailPreferences = mysqlTable("email_preferences", {
 
 export type EmailPreferences = typeof emailPreferences.$inferSelect;
 export type InsertEmailPreferences = typeof emailPreferences.$inferInsert;
+
+/**
+ * RSS Feeds configuration
+ */
+export const rssFeeds = mysqlTable("rss_feeds", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  feedUrl: varchar("feedUrl", { length: 500 }).notNull().unique(),
+  source: varchar("source", { length: 100 }).notNull(),
+  isActive: int("isActive").default(1).notNull(),
+  lastImportedAt: timestamp("lastImportedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type RssFeed = typeof rssFeeds.$inferSelect;
+export type InsertRssFeed = typeof rssFeeds.$inferInsert;
+
+/**
+ * RSS imports tracking
+ */
+export const rssImports = mysqlTable("rss_imports", {
+  id: int("id").autoincrement().primaryKey(),
+  feedId: int("feedId").notNull().references(() => rssFeeds.id, { onDelete: "cascade" }),
+  callId: int("callId").notNull().references(() => callsForEntries.id, { onDelete: "cascade" }),
+  externalId: varchar("externalId", { length: 255 }).notNull(),
+  importedAt: timestamp("importedAt").defaultNow().notNull(),
+});
+
+export type RssImport = typeof rssImports.$inferSelect;
+export type InsertRssImport = typeof rssImports.$inferInsert;
+
+/**
+ * Call views tracking
+ */
+export const callViews = mysqlTable("call_views", {
+  id: int("id").autoincrement().primaryKey(),
+  callId: int("callId").notNull().references(() => callsForEntries.id, { onDelete: "cascade" }),
+  userId: int("userId").references(() => users.id, { onDelete: "set null" }),
+  viewedAt: timestamp("viewedAt").defaultNow().notNull(),
+});
+
+export type CallView = typeof callViews.$inferSelect;
+export type InsertCallView = typeof callViews.$inferInsert;
+
+/**
+ * Call interactions (clicks, saves, etc.)
+ */
+export const callInteractions = mysqlTable("call_interactions", {
+  id: int("id").autoincrement().primaryKey(),
+  callId: int("callId").notNull().references(() => callsForEntries.id, { onDelete: "cascade" }),
+  userId: int("userId").references(() => users.id, { onDelete: "set null" }),
+  interactionType: mysqlEnum("interactionType", ["view", "save", "external_link_click", "share"]).notNull(),
+  interactedAt: timestamp("interactedAt").defaultNow().notNull(),
+});
+
+export type CallInteraction = typeof callInteractions.$inferSelect;
+export type InsertCallInteraction = typeof callInteractions.$inferInsert;
