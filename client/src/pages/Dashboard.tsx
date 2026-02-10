@@ -115,7 +115,9 @@ export default function Dashboard() {
                 {subscription?.level === "pro" &&
                   "Accedi a tutti i bandi: regionali, nazionali ed europei."}
               </p>
-              <Button className="btn-marine">Gestisci Abbonamento</Button>
+              <Link href="/subscriptions">
+                <Button className="btn-marine">Gestisci Abbonamento</Button>
+              </Link>
             </Card>
 
             {/* Saved Calls */}

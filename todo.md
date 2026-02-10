@@ -146,3 +146,7 @@
 - [x] Aggiornare logica pulsante Base nella Home
 - [x] Aggiornare display piano attuale nella Subscriptions
 - [x] Verificare coerenza prezzi in tutte le pagine
+
+
+## Dashboard Subscription Button
+- [x] Aggiornare il tasto "Gestisci Abbonamento" per navigare a /subscriptions
