@@ -150,3 +150,13 @@
 
 ## Dashboard Subscription Button
 - [x] Aggiornare il tasto "Gestisci Abbonamento" per navigare a /subscriptions
+
+
+## Add NavMenu to All Pages
+- [x] Aggiungere NavMenu e Home button alla pagina Calls
+- [x] Aggiungere NavMenu e Home button alla pagina CallDetail
+- [x] Aggiungere NavMenu e Home button alla pagina AdvancedSearch
+- [x] Aggiungere NavMenu e Home button alla pagina Subscriptions
+- [x] Aggiungere NavMenu e Home button alla pagina Admin
+- [x] Aggiungere NavMenu e Home button alla pagina Statistics
+- [x] Aggiungere NavMenu e Home button alla pagina EmailPreferences

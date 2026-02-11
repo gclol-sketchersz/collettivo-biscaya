@@ -3,8 +3,9 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "wouter";
-import { Loader2, Search, Filter, X } from "lucide-react";
+import { Loader2, Search, Filter, X, Home } from "lucide-react";
 import { toast } from "sonner";
+import NavMenu from "@/components/NavMenu";
 
 const CALL_TYPE_LABELS: Record<string, string> = {
   exhibition: "Mostra",
@@ -95,10 +96,18 @@ export default function AdvancedSearch() {
       <header className="bg-card border-b border-border sticky top-0 z-40">
         <div className="container py-4">
           <div className="flex items-center justify-between">
+            <NavMenu />
             <h1 className="text-2xl font-bold text-foreground">Ricerca Avanzata Bandi</h1>
-            <Link href="/calls">
-              <Button variant="ghost">← Ricerca Semplice</Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/">
+                <Button variant="ghost" size="icon" title="Torna alla Home">
+                  <Home className="w-5 h-5 text-primary" />
+                </Button>
+              </Link>
+              <Link href="/calls">
+                <Button variant="ghost">← Ricerca Semplice</Button>
+              </Link>
+            </div>
           </div>
         </div>
       </header>

@@ -1,11 +1,12 @@
-import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Loader2, Mail, Bell, Clock } from "lucide-react";
+import { Loader2, Mail, Bell, Clock, Home } from "lucide-react";
 import { Link } from "wouter";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
+import NavMenu from "@/components/NavMenu";
 
 export default function EmailPreferences() {
   const { user } = useAuth();
@@ -93,10 +94,18 @@ export default function EmailPreferences() {
       <header className="bg-card border-b border-border sticky top-0 z-40">
         <div className="container py-4">
           <div className="flex items-center justify-between">
+            <NavMenu />
             <h1 className="text-2xl font-bold text-foreground">Preferenze Notifiche Email</h1>
-            <Link href="/dashboard">
-              <Button variant="ghost">← Dashboard</Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/">
+                <Button variant="ghost" size="icon" title="Torna alla Home">
+                  <Home className="w-5 h-5 text-primary" />
+                </Button>
+              </Link>
+              <Link href="/dashboard">
+                <Button variant="ghost">← Dashboard</Button>
+              </Link>
+            </div>
           </div>
         </div>
       </header>

@@ -1,10 +1,11 @@
-import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Loader2, Plus, Edit, Trash2 } from "lucide-react";
-import { useLocation } from "wouter";
+import { Loader2, Plus, Edit, Trash2, Home } from "lucide-react";
+import { useLocation, Link } from "wouter";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useAuth } from "@/_core/hooks/useAuth";
+import NavMenu from "@/components/NavMenu";
 
 export default function Admin() {
   const { user, loading: authLoading } = useAuth();
@@ -31,11 +32,19 @@ export default function Admin() {
       <header className="bg-card border-b border-border sticky top-0 z-40">
         <div className="container py-4">
           <div className="flex items-center justify-between">
+            <NavMenu />
             <h1 className="text-2xl font-bold text-foreground">Area Amministrativa</h1>
-            <Button className="btn-marine">
-              <Plus className="w-4 h-4 mr-2" />
-              Nuovo Bando
-            </Button>
+            <div className="flex items-center gap-2">
+              <Link href="/">
+                <Button variant="ghost" size="icon" title="Torna alla Home">
+                  <Home className="w-5 h-5 text-primary" />
+                </Button>
+              </Link>
+              <Button className="btn-marine">
+                <Plus className="w-4 h-4 mr-2" />
+                Nuovo Bando
+              </Button>
+            </div>
           </div>
         </div>
       </header>
