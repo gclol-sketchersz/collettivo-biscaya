@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, subscriptions, callsForEntries, savedCalls, notifications, emailPreferences, rssFeeds, rssImports, callViews, callInteractions, InsertRssFeed } from "../drizzle/schema";
+import { InsertUser, users, subscriptions, callsForEntries, savedCalls, notifications, emailPreferences, rssFeeds, rssImports, callViews, callInteractions, InsertRssFeed, chatHistory, InsertChatHistory } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -583,4 +583,59 @@ export async function getCallsStatisticsByType() {
   });
   
   return stats;
+}
+
+/**
+ * Chat History Management
+ */
+export async function saveChatMessage(userId: number | undefined, role: 'user' | 'assistant', content: string) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  try {
+    const result = await db.insert(chatHistory).values({
+      userId: userId || null,
+      role,
+      content,
+    });
+    return result;
+  } catch (error) {
+    console.error("Failed to save chat message:", error);
+    return null;
+  }
+}
+
+export async function getChatHistory(userId: number | undefined, limit = 50) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  try {
+    if (userId) {
+      return await db
+        .select()
+        .from(chatHistory)
+        .where(eq(chatHistory.userId, userId))
+        .orderBy(desc(chatHistory.createdAt))
+        .limit(limit);
+    } else {
+      // For anonymous users, return empty array
+      return [];
+    }
+  } catch (error) {
+    console.error("Failed to get chat history:", error);
+    return [];
+  }
+}
+
+export async function clearChatHistory(userId: number) {
+  const db = await getDb();
+  if (!db) return false;
+  
+  try {
+    await db.delete(chatHistory).where(eq(chatHistory.userId, userId));
+    return true;
+  } catch (error) {
+    console.error("Failed to clear chat history:", error);
+    return false;
+  }
 }

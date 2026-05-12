@@ -176,3 +176,17 @@ export const callInteractions = mysqlTable("call_interactions", {
 
 export type CallInteraction = typeof callInteractions.$inferSelect;
 export type InsertCallInteraction = typeof callInteractions.$inferInsert;
+
+/**
+ * Chat history for Juana AI assistant
+ */
+export const chatHistory = mysqlTable("chat_history", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").references(() => users.id, { onDelete: "cascade" }),
+  role: mysqlEnum("role", ["user", "assistant"]).notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ChatHistory = typeof chatHistory.$inferSelect;
+export type InsertChatHistory = typeof chatHistory.$inferInsert;

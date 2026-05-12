@@ -13,6 +13,7 @@ import Admin from "./pages/Admin";
 import EmailPreferences from "./pages/EmailPreferences";
 import AdvancedSearch from "./pages/AdvancedSearch";
 import Statistics from "./pages/Statistics";
+import JuanaChat from "./components/JuanaChat";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -49,6 +50,7 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
+          <JuanaChat />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

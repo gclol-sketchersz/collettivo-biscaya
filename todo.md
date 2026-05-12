@@ -160,3 +160,15 @@
 - [x] Aggiungere NavMenu e Home button alla pagina Admin
 - [x] Aggiungere NavMenu e Home button alla pagina Statistics
 - [x] Aggiungere NavMenu e Home button alla pagina EmailPreferences
+
+
+## Juana AI Chat Assistant
+- [x] Estensione schema database con tabella chat_history
+- [x] Procedure tRPC per sendMessage, getHistory, clearHistory
+- [x] Componente JuanaChat con chat bubble e icona timone
+- [x] Integrazione di Juana in App.tsx (visibile su tutte le pagine)
+- [x] Integrazione LLM per risposte intelligenti
+- [x] Persistenza storico conversazioni nel database
+- [x] Test unitari per Juana (15 test passanti)
+- [x] UI chat bubble con animazioni
+- [x] Messaggi contestuali con informazioni sui bandi

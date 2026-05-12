@@ -18,6 +18,9 @@ import {
   getUserNotifications,
   markNotificationAsRead,
   createNotification,
+  saveChatMessage,
+  getChatHistory,
+  clearChatHistory,
 } from "./db";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -262,6 +265,120 @@ export const appRouter = router({
    * RSS Import
    */
   rss: rssRouter,
+
+  /**
+   * Juana AI Chat Assistant
+   */
+  juana: router({
+    /**
+     * Send message to Juana and get response
+     */
+    sendMessage: publicProcedure
+      .input(z.object({
+        message: z.string().min(1, "Message cannot be empty"),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        try {
+          // Save user message
+          await saveChatMessage(ctx.user?.id, 'user', input.message);
+
+          // Get recent chat history for context
+          const recentHistory = await getChatHistory(ctx.user?.id, 10);
+          const allCalls = await getAllActiveCalls();
+
+          // Build system prompt with context about available calls
+          const callsContext = allCalls
+            .slice(0, 5)
+            .map(call => `- ${call.title} (${call.callType}, deadline: ${call.deadline.toLocaleDateString()})`)
+            .join('\n');
+
+          const systemPrompt = `You are Juana, a helpful AI assistant for Collettivo Biscaya, a platform for discovering and applying to cultural calls for entries (bandi culturali) in Italy and Europe.
+
+Your role is to:
+1. Help users find relevant cultural calls based on their interests and qualifications
+2. Provide advice on application strategies and candidature tips
+3. Answer questions about the platform and how to use it
+4. Suggest calls that match user profiles
+5. Provide information about different call types (exhibitions, residencies, competitions, grants, awards, fellowships)
+
+Current available calls on the platform:
+${callsContext}
+
+Be friendly, encouraging, and professional. Use Italian when the user writes in Italian, and English when they write in English.`;
+
+          // Build conversation history for LLM
+          const messages: any[] = [
+            { role: 'system', content: systemPrompt },
+          ];
+
+          // Add recent chat history
+          recentHistory.reverse().forEach(msg => {
+            messages.push({
+              role: msg.role,
+              content: msg.content,
+            });
+          });
+
+          // Add current message
+          messages.push({
+            role: 'user',
+            content: input.message,
+          });
+
+          // Call LLM
+          const { invokeLLM } = await import('./_core/llm');
+          const response = await invokeLLM({
+            messages: messages.slice(-10), // Keep last 10 messages for context
+          });
+
+          const messageContent = response.choices[0]?.message?.content;
+          const assistantMessage = typeof messageContent === 'string' 
+            ? messageContent 
+            : Array.isArray(messageContent) 
+              ? messageContent.map(m => 'text' in m ? m.text : '').join(' ')
+              : 'Sorry, I could not generate a response.';
+
+          // Save assistant response
+          await saveChatMessage(ctx.user?.id, 'assistant', assistantMessage);
+
+          return {
+            success: true,
+            message: assistantMessage,
+          };
+        } catch (error) {
+          console.error('Error in Juana chat:', error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to process your message. Please try again.',
+          });
+        }
+      }),
+
+    /**
+     * Get chat history
+     */
+    getHistory: protectedProcedure
+      .query(async ({ ctx }) => {
+        if (!ctx.user?.id) return [];
+        const history = await getChatHistory(ctx.user.id, 50);
+        return history.reverse(); // Return in chronological order
+      }),
+
+    /**
+     * Clear chat history
+     */
+    clearHistory: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (!ctx.user?.id) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'You must be logged in to clear chat history',
+          });
+        }
+        const success = await clearChatHistory(ctx.user.id);
+        return { success };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
