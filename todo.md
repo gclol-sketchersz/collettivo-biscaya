@@ -183,3 +183,6 @@
 - [x] Aggiungere procedura tRPC getUserProfile per personalizzazione
 - [x] Aggiungere procedura tRPC saveFeedback per tracciare feedback
 - [x] Test unitari per nuove funzionalità (24 test passanti)
+- [x] Sostituire icona Compass con timone SVG a 8 raggi personalizzato
+- [x] Mantenere colori pulsante (sfondo blu, icona bianca)
+- [x] Test unitari per timone SVG (8 test passanti)

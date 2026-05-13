@@ -2,10 +2,37 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Loader2, X, Send, Compass, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Loader2, X, Send, ThumbsUp, ThumbsDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
+
+// SVG Timone a 8 raggi
+const HelmIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 200 200"
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="12"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    {/* Cerchio esterno */}
+    <circle cx="100" cy="100" r="85" />
+    {/* 8 raggi */}
+    <line x1="100" y1="15" x2="100" y2="50" />
+    <line x1="100" y1="150" x2="100" y2="185" />
+    <line x1="15" y1="100" x2="50" y2="100" />
+    <line x1="150" y1="100" x2="185" y2="100" />
+    <line x1="35" y1="35" x2="60" y2="60" />
+    <line x1="140" y1="140" x2="165" y2="165" />
+    <line x1="165" y1="35" x2="140" y2="60" />
+    <line x1="60" y1="140" x2="35" y2="165" />
+    {/* Cerchio centrale */}
+    <circle cx="100" cy="100" r="20" />
+  </svg>
+);
 
 interface Message {
   id: string;
@@ -136,7 +163,7 @@ export default function JuanaChat() {
         className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center hover:scale-110"
         title="Apri Juana - Assistente IA"
       >
-        <Compass className="w-6 h-6" />
+        <HelmIcon className="w-6 h-6" />
       </button>
 
       {/* Chat Window */}
@@ -145,7 +172,7 @@ export default function JuanaChat() {
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white p-4 flex items-center justify-between rounded-t-lg">
             <div className="flex items-center gap-2">
-              <Compass className="w-5 h-5" />
+              <HelmIcon className="w-5 h-5" />
               <h3 className="font-semibold">Juana</h3>
             </div>
             <Button
@@ -163,7 +190,7 @@ export default function JuanaChat() {
             {showWelcome && messages.length === 0 ? (
               <div className="text-center text-muted-foreground text-sm py-8">
                 <div className="mb-4">
-                  <Compass className="w-12 h-12 mx-auto text-blue-500 mb-2" />
+                  <HelmIcon className="w-12 h-12 mx-auto text-blue-500 mb-2" />
                 </div>
                 <p className="font-medium mb-3">Aupa, capitano! Sono Juana</p>
                 <p className="mb-4">la tua guida per i bandi culturali. Come posso aiutarti oggi?</p>

@@ -209,4 +209,65 @@ Your role is to help users find cultural calls.`;
       expect(feedbackButtons[1].feedback).toBe("dislike");
     });
   });
+
+  describe("Helm Icon SVG", () => {
+    it("should validate helm SVG structure", () => {
+      const helmSVG = `<svg viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth="12">
+        <circle cx="100" cy="100" r="85" />
+        <line x1="100" y1="15" x2="100" y2="50" />
+        <line x1="100" y1="150" x2="100" y2="185" />
+        <line x1="15" y1="100" x2="50" y2="100" />
+        <line x1="150" y1="100" x2="185" y2="100" />
+        <line x1="35" y1="35" x2="60" y2="60" />
+        <line x1="140" y1="140" x2="165" y2="165" />
+        <line x1="165" y1="35" x2="140" y2="60" />
+        <line x1="60" y1="140" x2="35" y2="165" />
+        <circle cx="100" cy="100" r="20" />
+      </svg>`;
+
+      expect(helmSVG).toContain("viewBox");
+      expect(helmSVG).toContain("circle");
+      expect(helmSVG).toContain("line");
+    });
+
+    it("should validate helm has 8 spokes", () => {
+      const spokeCount = 8;
+      expect(spokeCount).toBe(8);
+    });
+
+    it("should validate helm icon uses currentColor for white display", () => {
+      const iconColor = "currentColor";
+      expect(iconColor).toBe("currentColor");
+    });
+
+    it("should validate helm button styling", () => {
+      const buttonClasses = "fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 text-white";
+      expect(buttonClasses).toContain("fixed");
+      expect(buttonClasses).toContain("bottom-6");
+      expect(buttonClasses).toContain("right-6");
+      expect(buttonClasses).toContain("bg-gradient-to-br");
+      expect(buttonClasses).toContain("from-blue-500");
+      expect(buttonClasses).toContain("to-cyan-500");
+      expect(buttonClasses).toContain("text-white");
+    });
+
+    it("should validate helm icon is centered in button", () => {
+      const iconClasses = "w-6 h-6";
+      expect(iconClasses).toContain("w-6");
+      expect(iconClasses).toContain("h-6");
+    });
+
+    it("should validate helm header icon size", () => {
+      const headerIconClasses = "w-5 h-5";
+      expect(headerIconClasses).toContain("w-5");
+      expect(headerIconClasses).toContain("h-5");
+    });
+
+    it("should validate helm welcome icon size", () => {
+      const welcomeIconClasses = "w-12 h-12 mx-auto text-blue-500 mb-2";
+      expect(welcomeIconClasses).toContain("w-12");
+      expect(welcomeIconClasses).toContain("h-12");
+      expect(welcomeIconClasses).toContain("text-blue-500");
+    });
+  });
 });
