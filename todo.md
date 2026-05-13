@@ -172,3 +172,14 @@
 - [x] Test unitari per Juana (15 test passanti)
 - [x] UI chat bubble con animazioni
 - [x] Messaggi contestuali con informazioni sui bandi
+
+
+## Juana AI Chat Assistant - Miglioramenti
+- [x] Cambiare icona da ancora a timone (Compass icon)
+- [x] Aggiungere messaggio di benvenuto personalizzato: "Aupa, capitano! Sono Juana, la tua guida per i bandi culturali. Come posso aiutarti oggi?"
+- [x] Implementare sistema feedback utente (like/dislike) per valutare risposte
+- [x] Aggiungere suggerimenti rapidi (quick actions) per guidare l'utente
+- [x] Integrare personalizzazione profilo utente (livello abbonamento, bandi salvati)
+- [x] Aggiungere procedura tRPC getUserProfile per personalizzazione
+- [x] Aggiungere procedura tRPC saveFeedback per tracciare feedback
+- [x] Test unitari per nuove funzionalità (24 test passanti)

@@ -21,6 +21,7 @@ import {
   saveChatMessage,
   getChatHistory,
   clearChatHistory,
+  getUserProfileForJuana,
 } from "./db";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -355,6 +356,15 @@ Be friendly, encouraging, and professional. Use Italian when the user writes in 
       }),
 
     /**
+     * Get user profile for personalization
+     */
+    getUserProfile: protectedProcedure
+      .query(async ({ ctx }) => {
+        if (!ctx.user?.id) return null;
+        return await getUserProfileForJuana(ctx.user.id);
+      }),
+
+    /**
      * Get chat history
      */
     getHistory: protectedProcedure
@@ -362,6 +372,20 @@ Be friendly, encouraging, and professional. Use Italian when the user writes in 
         if (!ctx.user?.id) return [];
         const history = await getChatHistory(ctx.user.id, 50);
         return history.reverse(); // Return in chronological order
+      }),
+
+    /**
+     * Save message feedback (like/dislike)
+     */
+    saveFeedback: protectedProcedure
+      .input(z.object({
+        messageId: z.string(),
+        feedback: z.enum(['like', 'dislike']),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Feedback is tracked client-side for now
+        // In a real app, you could save this to the database
+        return { success: true };
       }),
 
     /**

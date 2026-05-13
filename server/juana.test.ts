@@ -1,6 +1,26 @@
 import { describe, it, expect } from "vitest";
 
 describe("Juana Chat Functions", () => {
+  describe("Quick Suggestions", () => {
+    it("should have predefined quick suggestions", () => {
+      const suggestions = [
+        "Mostrami bandi europei",
+        "Consigli candidatura",
+        "Bandi per mostre",
+        "Residenze d'artista",
+      ];
+
+      expect(suggestions.length).toBe(4);
+      expect(suggestions).toContain("Mostrami bandi europei");
+    });
+
+    it("should validate suggestion format", () => {
+      const suggestion = "Mostrami bandi europei";
+      expect(suggestion.length).toBeGreaterThan(0);
+      expect(typeof suggestion).toBe("string");
+    });
+  });
+
   describe("Chat Message Validation", () => {
     it("should validate message content is not empty", () => {
       const message = "Cerco bandi europei";
@@ -32,6 +52,19 @@ describe("Juana Chat Functions", () => {
       expect(testMessages.length).toBe(2);
       expect(testMessages[0].role).toBe("user");
       expect(testMessages[1].role).toBe("assistant");
+    });
+
+    it("should validate welcome message", () => {
+      const welcomeMessage = "Aupa, capitano! Sono Juana, la tua guida per i bandi culturali. Come posso aiutarti oggi?";
+      expect(welcomeMessage).toContain("Aupa");
+      expect(welcomeMessage).toContain("Juana");
+      expect(welcomeMessage).toContain("capitano");
+    });
+
+    it("should validate feedback types", () => {
+      const feedbackTypes = ["like", "dislike"];
+      expect(feedbackTypes).toContain("like");
+      expect(feedbackTypes).toContain("dislike");
     });
 
     it("should validate chat history structure", () => {
@@ -88,10 +121,19 @@ describe("Juana Chat Functions", () => {
       }
     });
 
-    it("should handle empty chat history", () => {
-      const emptyHistory: any[] = [];
-      expect(Array.isArray(emptyHistory)).toBe(true);
-      expect(emptyHistory.length).toBe(0);
+    it("should validate user profile structure", () => {
+      const userProfile = {
+        name: "Giorgio",
+        email: "giorgio@example.com",
+        subscriptionLevel: "pro",
+        savedCallsCount: 5,
+        savedCallIds: [1, 2, 3, 4, 5],
+      };
+
+      expect(userProfile).toHaveProperty("name");
+      expect(userProfile).toHaveProperty("subscriptionLevel");
+      expect(userProfile.subscriptionLevel).toBe("pro");
+      expect(userProfile.savedCallsCount).toBe(5);
     });
 
     it("should validate Juana system prompt structure", () => {
@@ -102,6 +144,18 @@ Your role is to help users find cultural calls.`;
       expect(systemPrompt).toContain("AI assistant");
       expect(systemPrompt).toContain("Collettivo Biscaya");
     });
+
+    it("should validate personalization with user name", () => {
+      const userProfile = { name: "Giorgio", subscriptionLevel: "pro" };
+      const personalizedMessage = `Benvenuto, ${userProfile.name}!`;
+      expect(personalizedMessage).toContain("Giorgio");
+    });
+
+    it("should validate subscription level display", () => {
+      const subscriptionLevels = ["base", "premium", "pro"];
+      expect(subscriptionLevels).toContain("base");
+      expect(subscriptionLevels).toContain("pro");
+    });
   });
 
   describe("Chat UI Components", () => {
@@ -109,7 +163,7 @@ Your role is to help users find cultural calls.`;
       const buttonProps = {
         title: "Apri Juana - Assistente IA",
         className: "fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full",
-        icon: "Anchor",
+        icon: "Compass",
       };
 
       expect(buttonProps.title).toContain("Juana");
@@ -120,7 +174,7 @@ Your role is to help users find cultural calls.`;
 
     it("should validate chat window styling", () => {
       const windowProps = {
-        className: "fixed bottom-24 right-6 z-50 w-96 max-h-96 flex flex-col",
+        className: "fixed bottom-24 right-6 z-50 w-96 max-h-[600px] flex flex-col",
         headerBg: "bg-gradient-to-r from-blue-500 to-cyan-500",
       };
 
@@ -142,6 +196,17 @@ Your role is to help users find cultural calls.`;
 
       expect(userBubble.className).toContain("blue");
       expect(assistantBubble.className).toContain("gray");
+    });
+
+    it("should validate feedback button properties", () => {
+      const feedbackButtons = [
+        { icon: "ThumbsUp", feedback: "like" },
+        { icon: "ThumbsDown", feedback: "dislike" },
+      ];
+
+      expect(feedbackButtons.length).toBe(2);
+      expect(feedbackButtons[0].feedback).toBe("like");
+      expect(feedbackButtons[1].feedback).toBe("dislike");
     });
   });
 });

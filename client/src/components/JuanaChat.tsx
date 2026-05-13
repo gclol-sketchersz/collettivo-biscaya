@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Loader2, X, Send, Anchor } from "lucide-react";
+import { Loader2, X, Send, Compass, ThumbsUp, ThumbsDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
@@ -12,7 +12,15 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  feedback?: "like" | "dislike" | null;
 }
+
+const QUICK_SUGGESTIONS = [
+  "Mostrami bandi europei",
+  "Consigli candidatura",
+  "Bandi per mostre",
+  "Residenze d'artista",
+];
 
 export default function JuanaChat() {
   const { user } = useAuth();
@@ -20,7 +28,13 @@ export default function JuanaChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Fetch user profile for personalization
+  const { data: userProfile } = trpc.juana.getUserProfile.useQuery(undefined, {
+    enabled: user?.id !== undefined,
+  });
 
   // Fetch chat history on mount
   const { data: chatHistory } = trpc.juana.getHistory.useQuery(undefined, {
@@ -29,14 +43,16 @@ export default function JuanaChat() {
 
   // Initialize messages from history
   useEffect(() => {
-    if (chatHistory) {
+    if (chatHistory && chatHistory.length > 0) {
       const formattedMessages = chatHistory.map((msg) => ({
         id: `${msg.createdAt}-${msg.role}`,
         role: msg.role as "user" | "assistant",
         content: msg.content,
         timestamp: new Date(msg.createdAt),
+        feedback: null,
       }));
       setMessages(formattedMessages);
+      setShowWelcome(false);
     }
   }, [chatHistory]);
 
@@ -47,23 +63,26 @@ export default function JuanaChat() {
 
   const sendMutation = trpc.juana.sendMessage.useMutation();
 
-  const handleSendMessage = async () => {
-    if (!input.trim()) return;
+  const handleSendMessage = async (messageText?: string) => {
+    const textToSend = messageText || input;
+    if (!textToSend.trim()) return;
 
     const userMessage: Message = {
       id: `${Date.now()}-user`,
       role: "user",
-      content: input,
+      content: textToSend,
       timestamp: new Date(),
+      feedback: null,
     };
 
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
+    setShowWelcome(false);
     setIsLoading(true);
 
     try {
       const response = await sendMutation.mutateAsync({
-        message: input,
+        message: textToSend,
       });
 
       if (response.success) {
@@ -72,6 +91,7 @@ export default function JuanaChat() {
           role: "assistant",
           content: response.message,
           timestamp: new Date(),
+          feedback: null,
         };
         setMessages((prev) => [...prev, assistantMessage]);
       }
@@ -82,6 +102,23 @@ export default function JuanaChat() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const feedbackMutation = trpc.juana.saveFeedback.useMutation();
+
+  const handleFeedback = (messageId: string, feedback: "like" | "dislike") => {
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg.id === messageId ? { ...msg, feedback } : msg
+      )
+    );
+    
+    // Save feedback to server if user is authenticated
+    if (user?.id) {
+      feedbackMutation.mutate({ messageId, feedback });
+    }
+    
+    toast.success(feedback === "like" ? "Grazie per il feedback positivo!" : "Feedback registrato");
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -99,16 +136,16 @@ export default function JuanaChat() {
         className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center hover:scale-110"
         title="Apri Juana - Assistente IA"
       >
-        <Anchor className="w-6 h-6" />
+        <Compass className="w-6 h-6" />
       </button>
 
       {/* Chat Window */}
       {isOpen && (
-        <Card className="fixed bottom-24 right-6 z-50 w-96 max-h-96 flex flex-col shadow-2xl border border-blue-200 bg-background">
+        <Card className="fixed bottom-24 right-6 z-50 w-96 max-h-[600px] flex flex-col shadow-2xl border border-blue-200 bg-background">
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white p-4 flex items-center justify-between rounded-t-lg">
             <div className="flex items-center gap-2">
-              <Anchor className="w-5 h-5" />
+              <Compass className="w-5 h-5" />
               <h3 className="font-semibold">Juana</h3>
             </div>
             <Button
@@ -123,33 +160,85 @@ export default function JuanaChat() {
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {messages.length === 0 ? (
+            {showWelcome && messages.length === 0 ? (
               <div className="text-center text-muted-foreground text-sm py-8">
-                <p className="font-medium mb-2">Ciao! Sono Juana</p>
-                <p>Sono qui per aiutarti a trovare i bandi culturali perfetti per te.</p>
-                <p className="mt-2 text-xs">Chiedimi di bandi, candidature o come funziona la piattaforma!</p>
+                <div className="mb-4">
+                  <Compass className="w-12 h-12 mx-auto text-blue-500 mb-2" />
+                </div>
+                <p className="font-medium mb-3">Aupa, capitano! Sono Juana</p>
+                <p className="mb-4">la tua guida per i bandi culturali. Come posso aiutarti oggi?</p>
+                {userProfile && (
+                  <p className="text-xs text-blue-600 mt-3">
+                    {userProfile.name ? `Benvenuto, ${userProfile.name}!` : ""}
+                    {userProfile.subscriptionLevel && userProfile.subscriptionLevel !== "base" && (
+                      <span> Piano: {userProfile.subscriptionLevel}</span>
+                    )}
+                  </p>
+                )}
+                
+                {/* Quick Suggestions */}
+                <div className="space-y-2 mt-4">
+                  {QUICK_SUGGESTIONS.map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      onClick={() => handleSendMessage(suggestion)}
+                      className="w-full px-3 py-2 text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors border border-blue-200"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
               </div>
             ) : (
               messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                >
+                <div key={msg.id} className="space-y-1">
                   <div
-                    className={`max-w-xs px-4 py-2 rounded-lg ${
-                      msg.role === "user"
-                        ? "bg-blue-500 text-white rounded-br-none"
-                        : "bg-gray-200 text-foreground rounded-bl-none"
-                    }`}
+                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                   >
-                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                    <span className="text-xs opacity-70 mt-1 block">
-                      {msg.timestamp.toLocaleTimeString("it-IT", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
+                    <div
+                      className={`max-w-xs px-4 py-2 rounded-lg ${
+                        msg.role === "user"
+                          ? "bg-blue-500 text-white rounded-br-none"
+                          : "bg-gray-200 text-foreground rounded-bl-none"
+                      }`}
+                    >
+                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                      <span className="text-xs opacity-70 mt-1 block">
+                        {msg.timestamp.toLocaleTimeString("it-IT", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
                   </div>
+
+                  {/* Feedback Buttons for Assistant Messages */}
+                  {msg.role === "assistant" && (
+                    <div className="flex gap-2 justify-start pl-2">
+                      <button
+                        onClick={() => handleFeedback(msg.id, "like")}
+                        className={`p-1 rounded transition-colors ${
+                          msg.feedback === "like"
+                            ? "bg-green-100 text-green-600"
+                            : "hover:bg-gray-100 text-gray-500"
+                        }`}
+                        title="Risposta utile"
+                      >
+                        <ThumbsUp className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleFeedback(msg.id, "dislike")}
+                        className={`p-1 rounded transition-colors ${
+                          msg.feedback === "dislike"
+                            ? "bg-red-100 text-red-600"
+                            : "hover:bg-gray-100 text-gray-500"
+                        }`}
+                        title="Risposta non utile"
+                      >
+                        <ThumbsDown className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))
             )}
@@ -175,7 +264,7 @@ export default function JuanaChat() {
               className="text-sm"
             />
             <Button
-              onClick={handleSendMessage}
+              onClick={() => handleSendMessage()}
               disabled={isLoading || !input.trim()}
               size="icon"
               className="bg-blue-500 hover:bg-blue-600"

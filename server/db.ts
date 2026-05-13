@@ -639,3 +639,33 @@ export async function clearChatHistory(userId: number) {
     return false;
   }
 }
+
+
+/**
+ * Get user profile with subscription and saved calls for Juana personalization
+ */
+export async function getUserProfileForJuana(userId: number | undefined) {
+  if (!userId) return null;
+  
+  const db = await getDb();
+  if (!db) return null;
+
+  try {
+    const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    if (!user.length) return null;
+
+    const subscription = await getUserSubscription(userId);
+    const savedCalls = await getUserSavedCalls(userId);
+
+    return {
+      name: user[0].name,
+      email: user[0].email,
+      subscriptionLevel: subscription?.level || "base",
+      savedCallsCount: savedCalls.length,
+      savedCallIds: savedCalls.map(call => call.saved_calls.callId),
+    };
+  } catch (error) {
+    console.error("Failed to get user profile for Juana:", error);
+    return null;
+  }
+}
