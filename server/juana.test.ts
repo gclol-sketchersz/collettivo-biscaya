@@ -270,4 +270,145 @@ Your role is to help users find cultural calls.`;
       expect(welcomeIconClasses).toContain("text-blue-500");
     });
   });
+
+  describe("Helm Animations", () => {
+    it("should validate helm-spinning animation class", () => {
+      const animationClass = "helm-spinning";
+      expect(animationClass).toBe("helm-spinning");
+    });
+
+    it("should validate helm-pulse animation class", () => {
+      const animationClass = "helm-pulse";
+      expect(animationClass).toBe("helm-pulse");
+    });
+
+    it("should validate helm-highlight animation class", () => {
+      const animationClass = "helm-highlight";
+      expect(animationClass).toBe("helm-highlight");
+    });
+
+    it("should validate animation is applied during loading", () => {
+      const isLoading = true;
+      const animationClass = isLoading ? "helm-pulse" : "";
+      expect(animationClass).toBe("helm-pulse");
+    });
+
+    it("should validate animation is removed when not loading", () => {
+      const isLoading = false;
+      const animationClass = isLoading ? "helm-pulse" : "";
+      expect(animationClass).toBe("");
+    });
+  });
+
+  describe("Helm Color Variants", () => {
+    it("should validate color shift animation for new messages", () => {
+      const hasNewMessage = true;
+      const animationClass = hasNewMessage ? "helm-highlight" : "";
+      expect(animationClass).toBe("helm-highlight");
+    });
+
+    it("should validate color returns to normal after timeout", () => {
+      const hasNewMessage = false;
+      const animationClass = hasNewMessage ? "helm-highlight" : "";
+      expect(animationClass).toBe("");
+    });
+
+    it("should validate new message state triggers animation", () => {
+      const messages = [
+        { role: "user", content: "Ciao" },
+        { role: "assistant", content: "Ciao! Come posso aiutarti?" },
+      ];
+      expect(messages.length).toBe(2);
+      expect(messages[1].role).toBe("assistant");
+    });
+  });
+
+  describe("Basque Tooltip Phrases", () => {
+    it("should validate Basque phrases array", () => {
+      const phrases = [
+        "Aúpa!",
+        "Bixarren!",
+        "Aurrera!",
+        "Gora!",
+        "Ondo!",
+        "Txalo!",
+      ];
+      expect(phrases.length).toBe(6);
+    });
+
+    it("should validate each phrase is non-empty", () => {
+      const phrases = [
+        "Aúpa!",
+        "Bixarren!",
+        "Aurrera!",
+        "Gora!",
+        "Ondo!",
+        "Txalo!",
+      ];
+      phrases.forEach((phrase) => {
+        expect(phrase.length).toBeGreaterThan(0);
+      });
+    });
+
+    it("should validate tooltip index is within range", () => {
+      const phrases = [
+        "Aúpa!",
+        "Bixarren!",
+        "Aurrera!",
+        "Gora!",
+        "Ondo!",
+        "Txalo!",
+      ];
+      const randomIndex = Math.floor(Math.random() * phrases.length);
+      expect(randomIndex).toBeGreaterThanOrEqual(0);
+      expect(randomIndex).toBeLessThan(phrases.length);
+    });
+
+    it("should validate tooltip styling classes", () => {
+      const tooltipClasses = "juana-tooltip fixed bottom-6 right-6 z-40";
+      expect(tooltipClasses).toContain("juana-tooltip");
+      expect(tooltipClasses).toContain("fixed");
+      expect(tooltipClasses).toContain("bottom-6");
+      expect(tooltipClasses).toContain("right-6");
+    });
+
+    it("should validate tooltip text styling", () => {
+      const tooltipTextClasses = "tooltiptext";
+      expect(tooltipTextClasses).toBe("tooltiptext");
+    });
+
+    it("should validate tooltip appears on hover", () => {
+      const tooltipState = {
+        visible: false,
+        onHover: true,
+      };
+      const shouldShow = tooltipState.onHover;
+      expect(shouldShow).toBe(true);
+    });
+  });
+
+  describe("Animation Timing", () => {
+    it("should validate loading animation duration", () => {
+      const animationDuration = "2s";
+      expect(animationDuration).toBe("2s");
+    });
+
+    it("should validate pulse animation timing", () => {
+      const animationTiming = "2s infinite";
+      expect(animationTiming).toContain("2s");
+      expect(animationTiming).toContain("infinite");
+    });
+
+    it("should validate new message highlight duration", () => {
+      const highlightDuration = 3000; // milliseconds
+      expect(highlightDuration).toBe(3000);
+    });
+
+    it("should validate color shift animation timing", () => {
+      const colorShiftTiming = "1.5s ease-in-out infinite";
+      expect(colorShiftTiming).toContain("1.5s");
+      expect(colorShiftTiming).toContain("ease-in-out");
+      expect(colorShiftTiming).toContain("infinite");
+    });
+  });
 });

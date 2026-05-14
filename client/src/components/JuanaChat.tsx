@@ -49,6 +49,16 @@ const QUICK_SUGGESTIONS = [
   "Residenze d'artista",
 ];
 
+// Frasi basche per il tooltip
+const BASQUE_PHRASES = [
+  "Aúpa!",
+  "Bixarren!",
+  "Aurrera!",
+  "Gora!",
+  "Ondo!",
+  "Txalo!",
+];
+
 export default function JuanaChat() {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
@@ -56,6 +66,8 @@ export default function JuanaChat() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [hasNewMessage, setHasNewMessage] = useState(false);
+  const [tooltipIndex, setTooltipIndex] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Fetch user profile for personalization
@@ -67,6 +79,11 @@ export default function JuanaChat() {
   const { data: chatHistory } = trpc.juana.getHistory.useQuery(undefined, {
     enabled: user?.id !== undefined,
   });
+
+  // Randomizza la frase tooltip al caricamento
+  useEffect(() => {
+    setTooltipIndex(Math.floor(Math.random() * BASQUE_PHRASES.length));
+  }, []);
 
   // Initialize messages from history
   useEffect(() => {
@@ -121,6 +138,8 @@ export default function JuanaChat() {
           feedback: null,
         };
         setMessages((prev) => [...prev, assistantMessage]);
+        setHasNewMessage(true);
+        setTimeout(() => setHasNewMessage(false), 3000);
       }
     } catch (error) {
       toast.error("Errore nell'invio del messaggio. Riprova.");
@@ -157,14 +176,25 @@ export default function JuanaChat() {
 
   return (
     <>
-      {/* Chat Bubble Button - Fixed bottom right */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center hover:scale-110"
-        title="Apri Juana - Assistente IA"
-      >
-        <HelmIcon className="w-6 h-6" />
-      </button>
+      {/* Chat Bubble Button - Fixed bottom right with animations */}
+      <div className="juana-tooltip fixed bottom-6 right-6 z-40">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className={`w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center hover:scale-110 ${
+            isLoading ? "helm-pulse" : ""
+          } ${
+            hasNewMessage ? "helm-highlight" : ""
+          }`}
+          title="Apri Juana - Assistente IA"
+        >
+          <HelmIcon
+            className={`w-6 h-6 ${
+              isLoading ? "helm-spinning" : ""
+            }`}
+          />
+        </button>
+        <span className="tooltiptext">{BASQUE_PHRASES[tooltipIndex]}</span>
+      </div>
 
       {/* Chat Window */}
       {isOpen && (

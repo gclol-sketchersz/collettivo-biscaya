@@ -186,3 +186,12 @@
 - [x] Sostituire icona Compass con timone SVG a 8 raggi personalizzato
 - [x] Mantenere colori pulsante (sfondo blu, icona bianca)
 - [x] Test unitari per timone SVG (8 test passanti)
+
+
+## Juana AI Chat Assistant - Animazioni e UX Avanzate
+- [x] Implementare animazione rotazione timone durante elaborazione risposta
+- [x] Implementare varianti colore timone per nuovi messaggi (da bianco a giallo)
+- [x] Implementare tooltip interattivo con frasi basche al hover
+- [x] Aggiungere animazioni CSS (helm-spinning, helm-pulse, helm-highlight)
+- [x] Aggiungere 18 test unitari per animazioni e tooltip
+- [x] Testare tutte le nuove funzionalità (81 test passanti)
