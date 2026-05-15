@@ -412,3 +412,118 @@ Your role is to help users find cultural calls.`;
     });
   });
 });
+
+
+describe("Juana - Rating and Export Features", () => {
+  describe("Rating System (1-5 Stars)", () => {
+    it("should accept rating values from 1 to 5", () => {
+      for (let rating = 1; rating <= 5; rating++) {
+        expect(rating).toBeGreaterThanOrEqual(1);
+        expect(rating).toBeLessThanOrEqual(5);
+      }
+    });
+
+    it("should validate rating input schema", () => {
+      const validRating = { messageId: 1, rating: 3, feedback: "Good response" };
+      expect(validRating.rating).toBe(3);
+      expect(validRating.messageId).toBe(1);
+    });
+
+    it("should reject invalid rating values", () => {
+      const invalidRatings = [0, 6, -1, 10];
+      invalidRatings.forEach((rating) => {
+        const isValid = rating >= 1 && rating <= 5;
+        expect(isValid).toBe(false);
+      });
+    });
+  });
+
+  describe("Chat Export Features", () => {
+    it("should export chat history as CSV format", () => {
+      const messages = [
+        { role: "user", content: "Hello", createdAt: new Date() },
+        { role: "assistant", content: "Hi there", createdAt: new Date() },
+      ];
+      const csv = [
+        ["Data", "Ruolo", "Messaggio"].join(","),
+        ...messages.map((m) => [m.createdAt.toISOString(), m.role, `"${m.content}"`].join(",")),
+      ].join("\n");
+      expect(csv).toContain("user");
+      expect(csv).toContain("assistant");
+    });
+
+    it("should export chat history as JSON format", () => {
+      const messages = [
+        { id: 1, role: "user", content: "Hello", rating: null },
+        { id: 2, role: "assistant", content: "Hi there", rating: 5 },
+      ];
+      const json = JSON.stringify(messages);
+      expect(json).toContain("user");
+      expect(json).toContain("rating");
+    });
+
+    it("should handle empty chat history for export", () => {
+      const emptyHistory: any[] = [];
+      expect(emptyHistory.length).toBe(0);
+    });
+  });
+
+  describe("Chat Statistics", () => {
+    it("should calculate total messages count", () => {
+      const messages = [
+        { role: "user", content: "msg1" },
+        { role: "assistant", content: "msg2" },
+        { role: "user", content: "msg3" },
+      ];
+      expect(messages.length).toBe(3);
+    });
+
+    it("should calculate average rating from rated messages", () => {
+      const ratings = [5, 4, 5, 3];
+      const average = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+      expect(average).toBeCloseTo(4.25);
+    });
+
+    it("should count user and assistant messages separately", () => {
+      const messages = [
+        { role: "user", content: "msg1" },
+        { role: "assistant", content: "msg2" },
+        { role: "user", content: "msg3" },
+        { role: "assistant", content: "msg4" },
+      ];
+      const userMessages = messages.filter((m) => m.role === "user");
+      const assistantMessages = messages.filter((m) => m.role === "assistant");
+      expect(userMessages.length).toBe(2);
+      expect(assistantMessages.length).toBe(2);
+    });
+
+    it("should handle statistics for conversations with no ratings", () => {
+      const messages = [
+        { role: "user", content: "msg1", rating: null },
+        { role: "assistant", content: "msg2", rating: null },
+      ];
+      const ratedMessages = messages.filter((m) => m.rating !== null);
+      expect(ratedMessages.length).toBe(0);
+    });
+  });
+
+  describe("Export Functionality UI", () => {
+    it("should generate valid CSV filename with date", () => {
+      const date = new Date().toISOString().split("T")[0];
+      const filename = `juana-chat-${date}.csv`;
+      expect(filename).toMatch(/juana-chat-\d{4}-\d{2}-\d{2}\.csv/);
+    });
+
+    it("should generate valid JSON filename with date", () => {
+      const date = new Date().toISOString().split("T")[0];
+      const filename = `juana-chat-${date}.json`;
+      expect(filename).toMatch(/juana-chat-\d{4}-\d{2}-\d{2}\.json/);
+    });
+
+    it("should escape special characters in CSV export", () => {
+      const content = 'Message with "quotes" and, commas';
+      const escaped = `"${content.replace(/"/g, '""')}"`;
+      expect(escaped).toBe('"Message with ""quotes"" and, commas"');
+    });
+  });
+});

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Loader2, X, Send, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Loader2, X, Send, ThumbsUp, ThumbsDown, Star, Download, BarChart3 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
@@ -40,6 +40,8 @@ interface Message {
   content: string;
   timestamp: Date;
   feedback?: "like" | "dislike" | null;
+  rating?: number | null;
+  messageId?: number;
 }
 
 const QUICK_SUGGESTIONS = [
@@ -49,7 +51,6 @@ const QUICK_SUGGESTIONS = [
   "Residenze d'artista",
 ];
 
-// Frasi basche per il tooltip
 const BASQUE_PHRASES = [
   "Aúpa!",
   "Bixarren!",
@@ -68,6 +69,7 @@ export default function JuanaChat() {
   const [showWelcome, setShowWelcome] = useState(true);
   const [hasNewMessage, setHasNewMessage] = useState(false);
   const [tooltipIndex, setTooltipIndex] = useState(0);
+  const [showStats, setShowStats] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Fetch user profile for personalization
@@ -80,27 +82,38 @@ export default function JuanaChat() {
     enabled: user?.id !== undefined,
   });
 
-  // Randomizza la frase tooltip al caricamento
+  // Fetch chat statistics
+  const { data: chatStats } = trpc.juana.getStatistics.useQuery(undefined, {
+    enabled: user?.id !== undefined && showStats,
+  });
+
+  // Fetch history for export
+  const { data: historyForExport } = trpc.juana.getHistoryForExport.useQuery(undefined, {
+    enabled: user?.id !== undefined,
+  });
+
+  const ratingMutation = trpc.juana.saveRating.useMutation();
+
   useEffect(() => {
     setTooltipIndex(Math.floor(Math.random() * BASQUE_PHRASES.length));
   }, []);
 
-  // Initialize messages from history
   useEffect(() => {
     if (chatHistory && chatHistory.length > 0) {
       const formattedMessages = chatHistory.map((msg) => ({
-        id: `${msg.createdAt}-${msg.role}`,
+        id: `${msg.id}-${msg.role}`,
         role: msg.role as "user" | "assistant",
         content: msg.content,
         timestamp: new Date(msg.createdAt),
         feedback: null,
+        rating: msg.rating || null,
+        messageId: msg.id,
       }));
       setMessages(formattedMessages);
       setShowWelcome(false);
     }
   }, [chatHistory]);
 
-  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -136,6 +149,7 @@ export default function JuanaChat() {
           content: response.message,
           timestamp: new Date(),
           feedback: null,
+          rating: null,
         };
         setMessages((prev) => [...prev, assistantMessage]);
         setHasNewMessage(true);
@@ -143,7 +157,6 @@ export default function JuanaChat() {
       }
     } catch (error) {
       toast.error("Errore nell'invio del messaggio. Riprova.");
-      // Remove the user message if there was an error
       setMessages((prev) => prev.slice(0, -1));
     } finally {
       setIsLoading(false);
@@ -158,13 +171,77 @@ export default function JuanaChat() {
         msg.id === messageId ? { ...msg, feedback } : msg
       )
     );
-    
-    // Save feedback to server if user is authenticated
+
     if (user?.id) {
       feedbackMutation.mutate({ messageId, feedback });
     }
-    
+
     toast.success(feedback === "like" ? "Grazie per il feedback positivo!" : "Feedback registrato");
+  };
+
+  const handleRating = (messageId: string, rating: number) => {
+    const message = messages.find((m) => m.id === messageId);
+    if (!message || !message.messageId) return;
+
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg.id === messageId ? { ...msg, rating } : msg
+      )
+    );
+
+    if (user?.id) {
+      ratingMutation.mutate({
+        messageId: message.messageId,
+        rating,
+      });
+    }
+
+    toast.success(`Valutazione: ${rating} stelle`);
+  };
+
+  const handleExportCSV = () => {
+    if (!historyForExport || historyForExport.length === 0) {
+      toast.error("Nessuna conversazione da esportare");
+      return;
+    }
+
+    const csv = [
+      ["Data", "Ruolo", "Messaggio", "Valutazione"].join(","),
+      ...historyForExport.map((msg) =>
+        [
+          new Date(msg.createdAt).toLocaleString("it-IT"),
+          msg.role,
+          `"${msg.content.replace(/"/g, '""')}"`,
+          msg.rating || "-",
+        ].join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `juana-chat-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    toast.success("Conversazione esportata in CSV");
+  };
+
+  const handleExportJSON = () => {
+    if (!historyForExport || historyForExport.length === 0) {
+      toast.error("Nessuna conversazione da esportare");
+      return;
+    }
+
+    const json = JSON.stringify(historyForExport, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `juana-chat-${new Date().toISOString().split("T")[0]}.json`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    toast.success("Conversazione esportata in JSON");
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -182,16 +259,10 @@ export default function JuanaChat() {
           onClick={() => setIsOpen(!isOpen)}
           className={`w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center hover:scale-110 ${
             isLoading ? "helm-pulse" : ""
-          } ${
-            hasNewMessage ? "helm-highlight" : ""
-          }`}
+          } ${hasNewMessage ? "helm-highlight" : ""}`}
           title="Apri Juana - Assistente IA"
         >
-          <HelmIcon
-            className={`w-6 h-6 ${
-              isLoading ? "helm-spinning" : ""
-            }`}
-          />
+          <HelmIcon className={`w-6 h-6 ${isLoading ? "helm-spinning" : ""}`} />
         </button>
         <span className="tooltiptext">{BASQUE_PHRASES[tooltipIndex]}</span>
       </div>
@@ -205,15 +276,60 @@ export default function JuanaChat() {
               <HelmIcon className="w-5 h-5" />
               <h3 className="font-semibold">Juana</h3>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsOpen(false)}
-              className="text-white hover:bg-white/20"
-            >
-              <X className="w-4 h-4" />
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowStats(!showStats)}
+                className="text-white hover:bg-white/20"
+                title="Statistiche chat"
+              >
+                <BarChart3 className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsOpen(false)}
+                className="text-white hover:bg-white/20"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
+
+          {/* Statistics Panel */}
+          {showStats && chatStats && (
+            <div className="border-b border-border p-3 bg-blue-50 text-sm space-y-2">
+              <div className="flex justify-between">
+                <span>Messaggi totali:</span>
+                <span className="font-semibold">{chatStats.totalMessages}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Valutazioni medie:</span>
+                <span className="font-semibold">{chatStats.averageRating}/5 ⭐</span>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleExportCSV}
+                  className="flex-1 text-xs"
+                >
+                  <Download className="w-3 h-3 mr-1" />
+                  CSV
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleExportJSON}
+                  className="flex-1 text-xs"
+                >
+                  <Download className="w-3 h-3 mr-1" />
+                  JSON
+                </Button>
+              </div>
+            </div>
+          )}
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -232,7 +348,7 @@ export default function JuanaChat() {
                     )}
                   </p>
                 )}
-                
+
                 {/* Quick Suggestions */}
                 <div className="space-y-2 mt-4">
                   {QUICK_SUGGESTIONS.map((suggestion) => (
@@ -249,9 +365,7 @@ export default function JuanaChat() {
             ) : (
               messages.map((msg) => (
                 <div key={msg.id} className="space-y-1">
-                  <div
-                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                  >
+                  <div className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                     <div
                       className={`max-w-xs px-4 py-2 rounded-lg ${
                         msg.role === "user"
@@ -269,9 +383,28 @@ export default function JuanaChat() {
                     </div>
                   </div>
 
-                  {/* Feedback Buttons for Assistant Messages */}
+                  {/* Rating and Feedback for Assistant Messages */}
                   {msg.role === "assistant" && (
-                    <div className="flex gap-2 justify-start pl-2">
+                    <div className="flex gap-2 justify-start pl-2 flex-wrap">
+                      {/* Star Rating */}
+                      <div className="flex gap-0.5">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            onClick={() => handleRating(msg.id, star)}
+                            className={`p-0.5 rounded transition-colors ${
+                              msg.rating && msg.rating >= star
+                                ? "text-yellow-400"
+                                : "hover:text-yellow-300 text-gray-300"
+                            }`}
+                            title={`Valuta ${star} stelle`}
+                          >
+                            <Star className="w-3 h-3 fill-current" />
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Like/Dislike */}
                       <button
                         onClick={() => handleFeedback(msg.id, "like")}
                         className={`p-1 rounded transition-colors ${
@@ -281,7 +414,7 @@ export default function JuanaChat() {
                         }`}
                         title="Risposta utile"
                       >
-                        <ThumbsUp className="w-4 h-4" />
+                        <ThumbsUp className="w-3 h-3" />
                       </button>
                       <button
                         onClick={() => handleFeedback(msg.id, "dislike")}
@@ -292,7 +425,7 @@ export default function JuanaChat() {
                         }`}
                         title="Risposta non utile"
                       >
-                        <ThumbsDown className="w-4 h-4" />
+                        <ThumbsDown className="w-3 h-3" />
                       </button>
                     </div>
                   )}

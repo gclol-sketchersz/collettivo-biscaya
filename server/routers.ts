@@ -22,6 +22,9 @@ import {
   getChatHistory,
   clearChatHistory,
   getUserProfileForJuana,
+  saveMessageRating,
+  getChatHistoryForExport,
+  getChatStatistics,
 } from "./db";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -386,6 +389,44 @@ Be friendly, encouraging, and professional. Use Italian when the user writes in 
         // Feedback is tracked client-side for now
         // In a real app, you could save this to the database
         return { success: true };
+      }),
+
+    /**
+     * Save message rating (1-5 stars) and feedback
+     */
+    saveRating: protectedProcedure
+      .input(z.object({
+        messageId: z.number(),
+        rating: z.number().min(1).max(5),
+        feedback: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (!ctx.user?.id) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'You must be logged in to save ratings',
+          });
+        }
+        const success = await saveMessageRating(input.messageId, input.rating, input.feedback);
+        return { success };
+      }),
+
+    /**
+     * Get chat history for export
+     */
+    getHistoryForExport: protectedProcedure
+      .query(async ({ ctx }) => {
+        if (!ctx.user?.id) return [];
+        return await getChatHistoryForExport(ctx.user.id);
+      }),
+
+    /**
+     * Get chat statistics
+     */
+    getStatistics: protectedProcedure
+      .query(async ({ ctx }) => {
+        if (!ctx.user?.id) return null;
+        return await getChatStatistics(ctx.user.id);
       }),
 
     /**

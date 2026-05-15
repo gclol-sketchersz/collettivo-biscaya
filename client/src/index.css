@@ -257,7 +257,7 @@
 
 /* Tooltip styling */
 .juana-tooltip {
-  position: relative;
+  position: fixed;
   display: inline-block;
 }
 

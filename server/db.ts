@@ -669,3 +669,76 @@ export async function getUserProfileForJuana(userId: number | undefined) {
     return null;
   }
 }
+
+
+/**
+ * Save rating and feedback for a chat message
+ */
+export async function saveMessageRating(messageId: number, rating: number, feedback?: string) {
+  const db = await getDb();
+  if (!db) return false;
+  
+  try {
+    await db.update(chatHistory)
+      .set({ rating, feedback, updatedAt: new Date() })
+      .where(eq(chatHistory.id, messageId));
+    return true;
+  } catch (error) {
+    console.error("Failed to save message rating:", error);
+    return false;
+  }
+}
+
+/**
+ * Get chat history with ratings for export
+ */
+export async function getChatHistoryForExport(userId: number | undefined) {
+  if (!userId) return [];
+  
+  const db = await getDb();
+  if (!db) return [];
+  
+  try {
+    const history = await db.select().from(chatHistory)
+      .where(eq(chatHistory.userId, userId))
+      .orderBy(chatHistory.createdAt);
+    return history;
+  } catch (error) {
+    console.error("Failed to get chat history for export:", error);
+    return [];
+  }
+}
+
+/**
+ * Get chat statistics for Juana
+ */
+export async function getChatStatistics(userId: number | undefined) {
+  if (!userId) return null;
+  
+  const db = await getDb();
+  if (!db) return null;
+  
+  try {
+    const history = await db.select().from(chatHistory)
+      .where(eq(chatHistory.userId, userId));
+    
+    const totalMessages = history.length;
+    const userMessages = history.filter(m => m.role === "user").length;
+    const assistantMessages = history.filter(m => m.role === "assistant").length;
+    const ratedMessages = history.filter(m => m.rating !== null).length;
+    const averageRating = history
+      .filter(m => m.rating !== null)
+      .reduce((sum, m) => sum + (m.rating || 0), 0) / (ratedMessages || 1);
+    
+    return {
+      totalMessages,
+      userMessages,
+      assistantMessages,
+      ratedMessages,
+      averageRating: Math.round(averageRating * 10) / 10,
+    };
+  } catch (error) {
+    console.error("Failed to get chat statistics:", error);
+    return null;
+  }
+}

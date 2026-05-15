@@ -185,7 +185,10 @@ export const chatHistory = mysqlTable("chat_history", {
   userId: int("userId").references(() => users.id, { onDelete: "cascade" }),
   role: mysqlEnum("role", ["user", "assistant"]).notNull(),
   content: text("content").notNull(),
+  rating: int("rating"), // 1-5 star rating for assistant messages
+  feedback: text("feedback"), // Optional user feedback
   createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export type ChatHistory = typeof chatHistory.$inferSelect;

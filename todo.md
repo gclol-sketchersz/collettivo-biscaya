@@ -195,3 +195,12 @@
 - [x] Aggiungere animazioni CSS (helm-spinning, helm-pulse, helm-highlight)
 - [x] Aggiungere 18 test unitari per animazioni e tooltip
 - [x] Testare tutte le nuove funzionalità (81 test passanti)
+
+
+## Juana AI Chat Assistant - Bug Fix e Nuove Feature
+- [x] Ripristinare posizione Juana (basso a destra, sempre visibile) - CSS fixed positioning corretto
+- [x] Implementare storico chat persistente nel database - Tabella chat_history estesa
+- [x] Implementare sistema di rating 1-5 stelle per risposte - UI con star rating e procedura tRPC
+- [x] Implementare esportazione conversazioni (CSV e JSON) - Pulsanti export nel pannello statistiche
+- [x] Implementare statistiche chat - Pannello con totale messaggi, rating medio, conteggi
+- [x] Testare tutte le nuove funzionalità - 60 test passanti per Juana

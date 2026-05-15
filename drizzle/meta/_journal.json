@@ -43,6 +43,13 @@
       "when": 1778573026914,
       "tag": "0005_skinny_nico_minoru",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1778833673544,
+      "tag": "0006_sloppy_glorian",
+      "breakpoints": true
     }
   ]
 }
