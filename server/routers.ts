@@ -25,6 +25,7 @@ import {
   saveMessageRating,
   getChatHistoryForExport,
   getChatStatistics,
+  getPersonalizedContextForJuana,
 } from "./db";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -289,6 +290,9 @@ export const appRouter = router({
           // Get recent chat history for context
           const recentHistory = await getChatHistory(ctx.user?.id, 10);
           const allCalls = await getAllActiveCalls();
+          
+          // Get personalized context for the user
+          const personalizedContext = ctx.user?.id ? await getPersonalizedContextForJuana(ctx.user.id) : null;
 
           // Build system prompt with context about available calls
           const callsContext = allCalls
@@ -365,6 +369,15 @@ Be friendly, encouraging, and professional. Use Italian when the user writes in 
       .query(async ({ ctx }) => {
         if (!ctx.user?.id) return null;
         return await getUserProfileForJuana(ctx.user.id);
+      }),
+
+    /**
+     * Get personalized context for LLM (includes saved calls, preferences, etc.)
+     */
+    getPersonalizedContext: protectedProcedure
+      .query(async ({ ctx }) => {
+        if (!ctx.user?.id) return null;
+        return await getPersonalizedContextForJuana(ctx.user.id);
       }),
 
     /**

@@ -204,3 +204,12 @@
 - [x] Implementare esportazione conversazioni (CSV e JSON) - Pulsanti export nel pannello statistiche
 - [x] Implementare statistiche chat - Pannello con totale messaggi, rating medio, conteggi
 - [x] Testare tutte le nuove funzionalità - 60 test passanti per Juana
+
+
+## Juana AI Chat Assistant - Contesto Personalizzato LLM
+- [ ] Creare helper database per raccogliere contesto utente
+- [ ] Implementare procedura tRPC getPersonalizedContext
+- [ ] Estendere sendMessage con contesto nel prompt LLM
+- [ ] Aggiornare JuanaChat per usare contesto personalizzato
+- [ ] Scrivere test unitari per contesto personalizzato
+- [ ] Testare risposte personalizzate nel browser

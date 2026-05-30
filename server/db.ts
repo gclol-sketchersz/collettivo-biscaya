@@ -742,3 +742,70 @@ export async function getChatStatistics(userId: number | undefined) {
     return null;
   }
 }
+
+
+/**
+ * Get personalized context for Juana based on user data
+ * Includes: saved calls, user preferences, subscription level
+ */
+export async function getPersonalizedContextForJuana(userId: number | undefined) {
+  if (!userId) return null;
+  
+  const db = await getDb();
+  if (!db) return null;
+  
+  try {
+    // Get user profile
+    const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    if (!user || user.length === 0) return null;
+    
+    const userProfile = user[0];
+    
+    // Get user subscription
+    const subscription = await db.select().from(subscriptions)
+      .where(eq(subscriptions.userId, userId))
+      .limit(1);
+    
+    const subscriptionLevel = subscription && subscription.length > 0 
+      ? subscription[0].level 
+      : "base";
+    
+    // Get saved calls (up to 10 most recent)
+    const savedCallsData = await db.select({
+      id: savedCalls.callId,
+      title: callsForEntries.title,
+      callType: callsForEntries.callType,
+      deadline: callsForEntries.deadline,
+    })
+      .from(savedCalls)
+      .innerJoin(callsForEntries, eq(savedCalls.callId, callsForEntries.id))
+      .where(eq(savedCalls.userId, userId))
+      .orderBy(desc(savedCalls.savedAt))
+      .limit(10);
+    
+    // Get email preferences
+    const emailPrefs = await db.select().from(emailPreferences)
+      .where(eq(emailPreferences.userId, userId))
+      .limit(1);
+    
+    const preferences = emailPrefs && emailPrefs.length > 0 ? emailPrefs[0] : null;
+    
+    return {
+      userName: userProfile.name || "Artista",
+      email: userProfile.email,
+      subscriptionLevel,
+      savedCallsCount: savedCallsData.length,
+      savedCalls: savedCallsData.map(call => ({
+        title: call.title,
+        callType: call.callType,
+        deadline: call.deadline,
+      })),
+      newCallsNotificationEnabled: preferences?.newCallsNotification === 1,
+      deadlineReminderEnabled: preferences?.deadlineReminderNotification === 1,
+      notificationFrequency: preferences?.notificationFrequency || "daily",
+    };
+  } catch (error) {
+    console.error("Failed to get personalized context for Juana:", error);
+    return null;
+  }
+}
