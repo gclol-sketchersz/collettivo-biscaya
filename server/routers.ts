@@ -299,6 +299,22 @@ export const appRouter = router({
             .slice(0, 5)
             .map(call => `- ${call.title} (${call.callType}, deadline: ${call.deadline.toLocaleDateString()})`)
             .join('\n');
+          
+          // Build personalized context section
+          let personalizedSection = '';
+          if (personalizedContext) {
+            personalizedSection = `
+
+User Profile:
+- Name: ${personalizedContext.userName}
+- Subscription Level: ${personalizedContext.subscriptionLevel}
+- Saved Calls: ${personalizedContext.savedCallsCount}`;
+            
+            if (personalizedContext.savedCalls.length > 0) {
+              personalizedSection += `
+- Recently Saved Calls: ${personalizedContext.savedCalls.map((c: any) => c.title).join(', ')}`;
+            }
+          }
 
           const systemPrompt = `You are Juana, a helpful AI assistant for Collettivo Biscaya, a platform for discovering and applying to cultural calls for entries (bandi culturali) in Italy and Europe.
 
@@ -310,9 +326,11 @@ Your role is to:
 5. Provide information about different call types (exhibitions, residencies, competitions, grants, awards, fellowships)
 
 Current available calls on the platform:
-${callsContext}
+${callsContext}${personalizedSection}
 
-Be friendly, encouraging, and professional. Use Italian when the user writes in Italian, and English when they write in English.`;
+Be friendly, encouraging, and professional. Personalize your responses based on the user's subscription level and saved calls.
+
+Use Italian when the user writes in Italian, and English when they write in English.`;
 
           // Build conversation history for LLM
           const messages: any[] = [

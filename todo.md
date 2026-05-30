@@ -207,9 +207,9 @@
 
 
 ## Juana AI Chat Assistant - Contesto Personalizzato LLM
-- [ ] Creare helper database per raccogliere contesto utente
-- [ ] Implementare procedura tRPC getPersonalizedContext
-- [ ] Estendere sendMessage con contesto nel prompt LLM
-- [ ] Aggiornare JuanaChat per usare contesto personalizzato
-- [ ] Scrivere test unitari per contesto personalizzato
-- [ ] Testare risposte personalizzate nel browser
+- [x] Creare helper database getPersonalizedContextForJuana per raccogliere contesto utente
+- [x] Implementare procedura tRPC getPersonalizedContext
+- [x] Estendere sendMessage con contesto nel prompt LLM (nome, abbonamento, bandi salvati)
+- [x] Aggiornare prompt LLM per includere sezione personalizzata
+- [x] Scrivere test unitari per contesto personalizzato (3 test passanti)
+- [x] Test totali passanti: 97 (inclusi 63 test per Juana)

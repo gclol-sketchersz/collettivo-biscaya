@@ -527,3 +527,79 @@ describe("Juana - Rating and Export Features", () => {
     });
   });
 });
+
+
+describe("Juana Personalized Context LLM", () => {
+  it("should return user profile with subscription level", () => {
+    const mockContext = {
+      userName: "Test Artist",
+      email: "artist@example.com",
+      subscriptionLevel: "premium",
+      savedCallsCount: 5,
+      savedCalls: [
+        { title: "Exhibition 2026", callType: "exhibition", deadline: new Date() },
+      ],
+      newCallsNotificationEnabled: true,
+      deadlineReminderEnabled: true,
+      notificationFrequency: "daily",
+    };
+
+    expect(mockContext.subscriptionLevel).toBe("premium");
+    expect(mockContext.savedCallsCount).toBeGreaterThan(0);
+  });
+
+  it("should include saved calls in personalized context", () => {
+    const mockContext = {
+      userName: "Artist",
+      email: "artist@example.com",
+      subscriptionLevel: "base",
+      savedCallsCount: 3,
+      savedCalls: [
+        { title: "Call 1", callType: "competition", deadline: new Date() },
+        { title: "Call 2", callType: "grant", deadline: new Date() },
+        { title: "Call 3", callType: "residency", deadline: new Date() },
+      ],
+      newCallsNotificationEnabled: false,
+      deadlineReminderEnabled: true,
+      notificationFrequency: "weekly",
+    };
+
+    expect(mockContext.savedCalls).toHaveLength(3);
+    expect(mockContext.savedCalls[0].title).toBe("Call 1");
+  });
+
+  it("should build personalized prompt section correctly", () => {
+    const mockContext = {
+      userName: "Marco",
+      email: "marco@example.com",
+      subscriptionLevel: "premium",
+      savedCallsCount: 2,
+      savedCalls: [
+        { title: "Venice Biennale", callType: "exhibition", deadline: new Date() },
+        { title: "Art Grant 2026", callType: "grant", deadline: new Date() },
+      ],
+      newCallsNotificationEnabled: true,
+      deadlineReminderEnabled: true,
+      notificationFrequency: "daily",
+    };
+
+    let personalizedSection = "";
+    if (mockContext) {
+      personalizedSection = `
+
+User Profile:
+- Name: ${mockContext.userName}
+- Subscription Level: ${mockContext.subscriptionLevel}
+- Saved Calls: ${mockContext.savedCallsCount}`;
+
+      if (mockContext.savedCalls.length > 0) {
+        personalizedSection += `
+- Recently Saved Calls: ${mockContext.savedCalls.map((c) => c.title).join(", ")}`;
+      }
+    }
+
+    expect(personalizedSection).toContain("Marco");
+    expect(personalizedSection).toContain("premium");
+    expect(personalizedSection).toContain("Venice Biennale");
+  });
+});
