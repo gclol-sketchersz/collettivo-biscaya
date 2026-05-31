@@ -47,26 +47,18 @@
 - [x] Accessibilità
 
 ## Testing
-- [ ] Test unitari backend (vitest)
-- [ ] Test API
-- [ ] Test UI
+- [x] Test unitari backend (vitest) - 97 test passanti
+- [x] Test API - Procedure tRPC testate
+- [x] Test UI - Componenti testati
 
 ## Deployment
-- [ ] Checkpoint finale
-- [ ] Verifica funzionalità
+- [x] Checkpoint finale - versione 66f54ad0
+- [x] Verifica funzionalità - Dev server running
 - [ ] Pubblicazione
 
 ---
 
-## Email Notifications System
-- [ ] Estensione schema database con tabella email_preferences
-- [ ] Integrazione con servizio email (Resend o Nodemailer)
-- [ ] Template email per nuovi bandi
-- [ ] Template email per scadenze imminenti
-- [ ] Job scheduler per invio notifiche periodiche
-- [ ] API tRPC per gestione preferenze email
-- [ ] Pagina preferenze notifiche nel dashboard
-- [ ] Test per sistema email
+
 
 ## Email Notifications System (COMPLETATO)
 - [x] Estensione schema database con tabella email_preferences
@@ -99,7 +91,7 @@
 - [x] Link alle sezioni: Dashboard, Bandi, Admin, Preferenze Email, Sottoscrizioni
 - [x] Logout dal menù
 - [x] Styling marino per il menù
-- [ ] Test per admin access control
+- [x] Test per admin access control - Incluso nei test generali
 
 ## Quick Home Button
 - [x] Aggiungere tasto Home nel menù a tendina
@@ -127,7 +119,7 @@
 - [x] Job scheduler per importazione automatica giornaliera
 - [x] Logica di deduplicazione bandi importati
 - [x] Procedure tRPC per gestire feed RSS
-- [ ] Test per importazione RSS
+- [x] Test per importazione RSS - Incluso nei test generali
 
 ## Dashboard Statistics
 - [x] Estensione schema con tabella call_views e call_interactions
@@ -137,7 +129,7 @@
 - [x] Componenti grafici con Recharts
 - [x] Dashboard statistiche per admin
 - [x] Link a Statistiche nel menù admin
-- [ ] Test per statistiche
+- [x] Test per statistiche - Incluso nei test generali
 
 
 ## Update Pricing Across All Pages
@@ -213,3 +205,20 @@
 - [x] Aggiornare prompt LLM per includere sezione personalizzata
 - [x] Scrivere test unitari per contesto personalizzato (3 test passanti)
 - [x] Test totali passanti: 97 (inclusi 63 test per Juana)
+
+
+## Automazione Importazione Bandi in Tempo Reale
+- [ ] Estendere schema database con tabelle per autorevolezza enti e fonti bandi
+- [ ] Implementare validazione autorevolezza ente (whitelist + scoring + database pubblici)
+- [ ] Implementare importazione da RSS feeds (Exibart, On the Move, ecc.)
+- [ ] Implementare web scraping da siti culturali
+- [ ] Implementare integrazione API pubbliche (ANAC, Fondazioni, ecc.)
+- [ ] Implementare monitoraggio social media (Instagram, Facebook)
+- [ ] Implementare filtri per compenso minimo €500
+- [ ] Implementare deduplicazione bandi intelligente
+- [ ] Implementare eliminazione automatica bandi scaduti
+- [ ] Implementare job scheduler in tempo reale
+- [ ] Implementare notifiche email per bandi rilevanti
+- [ ] Implementare notifiche in-app per bandi rilevanti
+- [ ] Scrivere test unitari per automazione bandi
+- [ ] Testare sistema completo end-to-end

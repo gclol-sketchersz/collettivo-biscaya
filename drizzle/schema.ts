@@ -193,3 +193,73 @@ export const chatHistory = mysqlTable("chat_history", {
 
 export type ChatHistory = typeof chatHistory.$inferSelect;
 export type InsertChatHistory = typeof chatHistory.$inferInsert;
+
+
+/**
+ * Verified entities for call validation
+ * Whitelist of trusted organizations that issue cultural calls
+ */
+export const verifiedEntities = mysqlTable("verified_entities", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+  type: mysqlEnum("type", ["foundation", "institution", "government", "private", "nonprofit"]).notNull(),
+  country: varchar("country", { length: 2 }).notNull(), // ISO 3166-1 alpha-2
+  website: varchar("website", { length: 500 }),
+  authorityScore: int("authorityScore").default(50).notNull(), // 0-100 score
+  isVerified: int("isVerified").default(0).notNull(), // 0 = pending, 1 = verified
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type VerifiedEntity = typeof verifiedEntities.$inferSelect;
+export type InsertVerifiedEntity = typeof verifiedEntities.$inferInsert;
+
+/**
+ * Import sources for calls
+ * Tracks RSS feeds, APIs, and web scraping sources
+ */
+export const importSources = mysqlTable("import_sources", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+  type: mysqlEnum("type", ["rss", "api", "webscrape", "social_media"]).notNull(),
+  url: varchar("url", { length: 500 }).notNull(),
+  isActive: int("isActive").default(1).notNull(),
+  lastImportedAt: timestamp("lastImportedAt"),
+  nextImportAt: timestamp("nextImportAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ImportSource = typeof importSources.$inferSelect;
+export type InsertImportSource = typeof importSources.$inferInsert;
+
+/**
+ * Import logs for tracking bandi imports
+ */
+export const importLogs = mysqlTable("import_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  sourceId: int("sourceId").references(() => importSources.id, { onDelete: "cascade" }),
+  callId: int("callId").references(() => callsForEntries.id, { onDelete: "cascade" }),
+  externalId: varchar("externalId", { length: 255 }), // ID from external source
+  status: mysqlEnum("status", ["success", "duplicate", "filtered", "error"]).notNull(),
+  reason: text("reason"), // Reason for filtering or error
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ImportLog = typeof importLogs.$inferSelect;
+export type InsertImportLog = typeof importLogs.$inferInsert;
+
+/**
+ * Entity scoring history for tracking authority changes
+ */
+export const entityScoringHistory = mysqlTable("entity_scoring_history", {
+  id: int("id").autoincrement().primaryKey(),
+  entityId: int("entityId").references(() => verifiedEntities.id, { onDelete: "cascade" }),
+  previousScore: int("previousScore"),
+  newScore: int("newScore").notNull(),
+  reason: text("reason"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type EntityScoringHistory = typeof entityScoringHistory.$inferSelect;
+export type InsertEntityScoringHistory = typeof entityScoringHistory.$inferInsert;
