@@ -27,6 +27,13 @@ import {
   getChatStatistics,
   getPersonalizedContextForJuana,
 } from "./db";
+import {
+  getCallsWithMinimumCompensation,
+  countCallsWithMinimumCompensation,
+  removeExpiredCalls,
+  getExpiredCalls,
+  getCallsByVerifiedEntity,
+} from "./db-automation";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
@@ -473,6 +480,93 @@ Use Italian when the user writes in Italian, and English when they write in Engl
         }
         const success = await clearChatHistory(ctx.user.id);
         return { success };
+      }),
+  }),
+
+  /**
+   * Call Automation
+   */
+  automation: router({
+    /**
+     * Get calls with minimum compensation (EUR 500)
+     */
+    getCallsWithMinCompensation: publicProcedure
+      .input(z.object({
+        minCompensation: z.number().default(500),
+        limit: z.number().default(50),
+        offset: z.number().default(0),
+      }).optional())
+      .query(async ({ input }) => {
+        const params = input || {};
+        return await getCallsWithMinimumCompensation(
+          (params as any).minCompensation || 500,
+          (params as any).limit || 50,
+          (params as any).offset || 0
+        );
+      }),
+
+    /**
+     * Count calls with minimum compensation
+     */
+    countCallsWithMinCompensation: publicProcedure
+      .input(z.object({
+        minCompensation: z.number().default(500),
+      }).optional())
+      .query(async ({ input }) => {
+        const minCompensation = (input as any)?.minCompensation || 500;
+        return await countCallsWithMinimumCompensation(minCompensation);
+      }),
+
+    /**
+     * Remove expired calls (admin only)
+     */
+    removeExpiredCalls: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Only admins can remove expired calls',
+          });
+        }
+
+        const removedCount = await removeExpiredCalls();
+        return { success: true, removedCount };
+      }),
+
+    /**
+     * Get expired calls (admin only)
+     */
+    getExpiredCalls: protectedProcedure
+      .input(z.object({
+        limit: z.number().default(50),
+      }).optional())
+      .query(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Only admins can view expired calls',
+          });
+        }
+
+        const limit = input?.limit || 50;
+        return await getExpiredCalls(limit);
+      }),
+
+    /**
+     * Get calls by verified entity
+     */
+    getCallsByEntity: publicProcedure
+      .input(z.object({
+        entityId: z.string(),
+        limit: z.number().default(50),
+        offset: z.number().default(0),
+      }))
+      .query(async ({ input }) => {
+        return await getCallsByVerifiedEntity(
+          input.entityId,
+          input.limit,
+          input.offset
+        );
       }),
   }),
 });

@@ -47,7 +47,7 @@
 - [x] Accessibilità
 
 ## Testing
-- [x] Test unitari backend (vitest) - 97 test passanti
+- [x] Test unitari backend (vitest) - 115 test passanti (inclusi 18 test di automazione)
 - [x] Test API - Procedure tRPC testate
 - [x] Test UI - Componenti testati
 
@@ -207,18 +207,28 @@
 - [x] Test totali passanti: 97 (inclusi 63 test per Juana)
 
 
-## Automazione Importazione Bandi in Tempo Reale
-- [ ] Estendere schema database con tabelle per autorevolezza enti e fonti bandi
-- [ ] Implementare validazione autorevolezza ente (whitelist + scoring + database pubblici)
+## Automazione Importazione Bandi - Fase 1: Filtri Base (COMPLETATO)
+- [x] Estendere schema database con tabelle per autorevolezza enti (verified_entities, import_sources, import_logs, entity_scoring_history)
+- [x] Implementare filtri per compenso minimo EUR 500 (getCallsWithMinCompensation)
+- [x] Implementare procedura tRPC removeExpiredCalls (admin-only)
+- [x] Implementare helper getCallsByVerifiedEntity per filtrare per ente
+- [x] Scrivere test unitari per automazione bandi (18 test passanti)
+
+## Automazione Importazione Bandi - Fase 2: Job Scheduler e Validazione Enti
+- [ ] Implementare job scheduler (cron/Heartbeat) per rimozione automatica bandi scaduti
+- [ ] Aggiungere logica di validazione autorevolezza ente (whitelist + scoring)
+- [ ] Collegare bandi alle verified_entities con join e validazione
+- [ ] Implementare procedura tRPC per validare autorevolezza ente
+- [ ] Test per job scheduler e validazione enti
+
+## Automazione Importazione Bandi - Fase 3: Importazione da Fonti
 - [ ] Implementare importazione da RSS feeds (Exibart, On the Move, ecc.)
 - [ ] Implementare web scraping da siti culturali
 - [ ] Implementare integrazione API pubbliche (ANAC, Fondazioni, ecc.)
 - [ ] Implementare monitoraggio social media (Instagram, Facebook)
-- [ ] Implementare filtri per compenso minimo €500
 - [ ] Implementare deduplicazione bandi intelligente
-- [ ] Implementare eliminazione automatica bandi scaduti
-- [ ] Implementare job scheduler in tempo reale
+
+## Automazione Importazione Bandi - Fase 4: Notifiche
 - [ ] Implementare notifiche email per bandi rilevanti
 - [ ] Implementare notifiche in-app per bandi rilevanti
-- [ ] Scrivere test unitari per automazione bandi
 - [ ] Testare sistema completo end-to-end
