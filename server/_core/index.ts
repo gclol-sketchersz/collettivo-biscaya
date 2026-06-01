@@ -8,6 +8,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { cleanupExpiredCallsHandler } from "../scheduled/cleanup-expired-calls";
+import { webScrapingJobHandler } from "../scheduled/web-scraping-job";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -38,6 +39,7 @@ async function startServer() {
   registerOAuthRoutes(app);
   // Scheduled jobs (must be before Vite/static fallthrough)
   app.post("/api/scheduled/cleanup-expired-calls", cleanupExpiredCallsHandler);
+  app.post("/api/scheduled/web-scraping", webScrapingJobHandler);
 
   // tRPC API
   app.use(

@@ -47,11 +47,13 @@
 - [x] Accessibilità
 
 ## Testing
-- [x] Test unitari backend (vitest) - 138 test passanti
+- [x] Test unitari backend (vitest) - 162 test passanti
   * 18 test automazione base (Fase 1)
-  * 10 test job scheduler con autenticazione cron (Fase 2)
+  * 10 test job scheduler cleanup (Fase 2)
   * 14 test validazione enti (Fase 3)
-  * 96 test esistenti
+  * 26 test web scraper (Fase 4)
+  * 9 test web scraping job (Fase 5)
+  * 85 test esistenti
 - [x] Test API - Procedure tRPC testate (11 procedure di automazione)
 - [x] Test UI - Componenti testati
 
@@ -232,14 +234,24 @@
 - [x] Implementare updateEntityAuthorityScore con storico
 - [x] Scrivere test per validazione enti (14 test passanti)
 
-## Automazione Importazione Bandi - Fase 4: Importazione da Fonti
-- [ ] Implementare importazione da RSS feeds (Exibart, On the Move, ecc.) - In progress
-- [ ] Implementare web scraping da siti culturali
+## Automazione Importazione Bandi - Fase 4: Web Scraping (COMPLETATO)
+- [x] Implementare scraper core con Cheerio (base-scraper.ts)
+- [x] Implementare parser Exibart (exibart-scraper.ts)
+- [x] Implementare parser MiBACT (mibact-scraper.ts)
+- [x] Implementare deduplicazione intelligente (deduplicator.ts)
+- [x] Scrivere test unitari per scraper (26 test passanti)
+- [x] Implementare job scheduler web scraping (web-scraping-job.ts)
+- [x] Configurare cron giornaliero alle 2:00 AM UTC
+- [x] Scrivere test job scheduler (9 test passanti)
+
+## Automazione Importazione Bandi - Fase 5: Importazione da Altre Fonti
+- [ ] Implementare importazione da RSS feeds (Exibart, On the Move, ecc.)
 - [ ] Implementare integrazione API pubbliche (ANAC, Fondazioni, ecc.)
 - [ ] Implementare monitoraggio social media (Instagram, Facebook)
-- [ ] Implementare deduplicazione bandi intelligente
 
 ## Automazione Importazione Bandi - Fase 5: Notifiche
 - [ ] Implementare notifiche email per bandi rilevanti
 - [ ] Implementare notifiche in-app per bandi rilevanti
 - [ ] Testare sistema completo end-to-end
+
+
