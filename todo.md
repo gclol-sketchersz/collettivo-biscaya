@@ -47,8 +47,12 @@
 - [x] Accessibilità
 
 ## Testing
-- [x] Test unitari backend (vitest) - 115 test passanti (inclusi 18 test di automazione)
-- [x] Test API - Procedure tRPC testate
+- [x] Test unitari backend (vitest) - 138 test passanti
+  * 18 test automazione base (Fase 1)
+  * 10 test job scheduler con autenticazione cron (Fase 2)
+  * 14 test validazione enti (Fase 3)
+  * 96 test esistenti
+- [x] Test API - Procedure tRPC testate (11 procedure di automazione)
 - [x] Test UI - Componenti testati
 
 ## Deployment
@@ -214,21 +218,28 @@
 - [x] Implementare helper getCallsByVerifiedEntity per filtrare per ente
 - [x] Scrivere test unitari per automazione bandi (18 test passanti)
 
-## Automazione Importazione Bandi - Fase 2: Job Scheduler e Validazione Enti
-- [ ] Implementare job scheduler (cron/Heartbeat) per rimozione automatica bandi scaduti
-- [ ] Aggiungere logica di validazione autorevolezza ente (whitelist + scoring)
-- [ ] Collegare bandi alle verified_entities con join e validazione
-- [ ] Implementare procedura tRPC per validare autorevolezza ente
-- [ ] Test per job scheduler e validazione enti
+## Automazione Importazione Bandi - Fase 2: Job Scheduler (COMPLETATO)
+- [x] Implementare job scheduler (cron/Heartbeat) per rimozione automatica bandi scaduti
+- [x] Creare handler Express per /api/scheduled/cleanup-expired-calls
+- [x] Configurare cron giornaliero alle 3:00 AM UTC
+- [x] Scrivere test per job scheduler (10 test passanti)
 
-## Automazione Importazione Bandi - Fase 3: Importazione da Fonti
-- [ ] Implementare importazione da RSS feeds (Exibart, On the Move, ecc.)
+## Automazione Importazione Bandi - Fase 3: Validazione Enti (COMPLETATO)
+- [x] Aggiungere logica di validazione autorevolezza ente (whitelist + scoring)
+- [x] Implementare whitelist di 70+ enti autorevolezza (fondazioni, istituzioni, RSS)
+- [x] Implementare sistema di scoring autorevolezza (0-100)
+- [x] Creare helper database getOrCreateVerifiedEntity
+- [x] Implementare updateEntityAuthorityScore con storico
+- [x] Scrivere test per validazione enti (14 test passanti)
+
+## Automazione Importazione Bandi - Fase 4: Importazione da Fonti
+- [ ] Implementare importazione da RSS feeds (Exibart, On the Move, ecc.) - In progress
 - [ ] Implementare web scraping da siti culturali
 - [ ] Implementare integrazione API pubbliche (ANAC, Fondazioni, ecc.)
 - [ ] Implementare monitoraggio social media (Instagram, Facebook)
 - [ ] Implementare deduplicazione bandi intelligente
 
-## Automazione Importazione Bandi - Fase 4: Notifiche
+## Automazione Importazione Bandi - Fase 5: Notifiche
 - [ ] Implementare notifiche email per bandi rilevanti
 - [ ] Implementare notifiche in-app per bandi rilevanti
 - [ ] Testare sistema completo end-to-end

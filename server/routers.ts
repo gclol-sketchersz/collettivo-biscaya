@@ -34,6 +34,17 @@ import {
   getExpiredCalls,
   getCallsByVerifiedEntity,
 } from "./db-automation";
+import {
+  getCallsFromVerifiedEntities,
+  countCallsFromVerifiedEntities,
+  getCallsWithMinCompensationFromVerifiedEntities,
+  getCallEntityVerificationStatus,
+} from "./db-automation-advanced";
+import {
+  validateEntityAuthority,
+  getOrCreateVerifiedEntity,
+  getVerifiedEntities,
+} from "./db-entity-validation";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
@@ -566,6 +577,63 @@ Use Italian when the user writes in Italian, and English when they write in Engl
           input.entityId,
           input.limit,
           input.offset
+        );
+      }),
+
+    /**
+     * Get calls only from verified entities with authority score
+     */
+    getCallsFromVerifiedEntities: publicProcedure
+      .input(z.object({
+        minAuthorityScore: z.number().default(50),
+        limit: z.number().default(50),
+        offset: z.number().default(0),
+      }).optional())
+      .query(async ({ input }) => {
+        const params = input || {};
+        return await getCallsFromVerifiedEntities(
+          (params as any).minAuthorityScore || 50,
+          (params as any).limit || 50,
+          (params as any).offset || 0
+        );
+      }),
+
+    /**
+     * Validate entity authority
+     */
+    validateEntityAuthority: publicProcedure
+      .input(z.object({
+        entityName: z.string().min(1),
+      }))
+      .query(async ({ input }) => {
+        const isValid = await validateEntityAuthority(input.entityName);
+        return { entityName: input.entityName, isValid, authorityLevel: isValid ? 'verified' : 'unverified' };
+      }),
+
+    /**
+     * Get entity verification status for a call
+     */
+    getCallEntityVerificationStatus: publicProcedure
+      .input(z.object({
+        callId: z.number(),
+      }))
+      .query(async ({ input }) => {
+        return await getCallEntityVerificationStatus(input.callId);
+      }),
+
+    /**
+     * Get all verified entities
+     */
+    getVerifiedEntities: publicProcedure
+      .input(z.object({
+        minScore: z.number().default(50),
+        limit: z.number().default(100),
+      }).optional())
+      .query(async ({ input }) => {
+        const params = input || {};
+        return await getVerifiedEntities(
+          (params as any).minScore || 50,
+          (params as any).limit || 100
         );
       }),
   }),
