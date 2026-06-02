@@ -47,13 +47,16 @@
 - [x] Accessibilità
 
 ## Testing
-- [x] Test unitari backend (vitest) - 172 test passanti
+- [x] Test unitari backend (vitest) - 230 test passanti
   * 18 test automazione base (Fase 1)
   * 10 test job scheduler cleanup (Fase 2)
   * 14 test validazione enti (Fase 3)
   * 26 test web scraper (Fase 4)
   * 9 test web scraping job (Fase 4)
+  * 13 test RSS parser (Fase 5)
   * 10 test RSS import job (Fase 5)
+  * 28 test API clients (Fase 6)
+  * 13 test public API import job (Fase 6)
   * 85 test esistenti
 - [x] Test API - Procedure tRPC testate (11 procedure di automazione)
 - [x] Test UI - Componenti testati
@@ -245,18 +248,6 @@
 - [x] Configurare cron giornaliero alle 2:00 AM UTC
 - [x] Scrivere test job scheduler (9 test passanti)
 
-## Automazione Importazione Bandi - Fase 5: Importazione da Altre Fonti
-- [ ] Implementare importazione da RSS feeds (Exibart, On the Move, ecc.)
-- [ ] Implementare integrazione API pubbliche (ANAC, Fondazioni, ecc.)
-- [ ] Implementare monitoraggio social media (Instagram, Facebook)
-
-## Automazione Importazione Bandi - Fase 5: Notifiche
-- [ ] Implementare notifiche email per bandi rilevanti
-- [ ] Implementare notifiche in-app per bandi rilevanti
-- [ ] Testare sistema completo end-to-end
-
-
-
 ## Automazione Importazione Bandi - Fase 5: RSS Feeds (COMPLETATO)
 - [x] Analizzare feed RSS principali (Exibart, On the Move, Artabus)
 - [x] Implementare parser RSS core con xml2js (base-rss-parser.ts)
@@ -265,5 +256,24 @@
 - [x] Creare parser specifici per feed Artabus (artabus-rss-parser.ts)
 - [x] Implementare job scheduler per importazione RSS automatica (rss-import-job.ts)
 - [x] Configurare cron giornaliero per RSS (1:00 AM UTC)
-- [x] Scrivere test unitari per parser RSS (10 test passanti)
+- [x] Scrivere test unitari per parser RSS (13 test passanti)
 - [x] Registrare handler nel server Express
+- [x] Scrivere test per job scheduler RSS (10 test passanti)
+
+## Automazione Importazione Bandi - Fase 6: Importazione da API Pubbliche (COMPLETATO)
+- [x] Implementare client ANAC API (anac-api-client.ts)
+- [x] Implementare client OpenCoesione API (opencoesione-api-client.ts)
+- [x] Implementare job scheduler per API pubbliche (public-api-import-job.ts)
+- [x] Configurare cron giornaliero alle 4:00 AM UTC
+- [x] Scrivere test per API clients (28 test passanti)
+- [x] Scrivere test per job scheduler (13 test passanti)
+- [x] Registrare handler nel server Express
+
+## Automazione Importazione Bandi - Fase 6b: Monitoraggio Social Media
+- [ ] Implementare monitoraggio Instagram (Instagram API)
+- [ ] Implementare monitoraggio Facebook (Facebook API)
+
+## Automazione Importazione Bandi - Fase 7: Notifiche
+- [ ] Implementare notifiche email per bandi rilevanti
+- [ ] Implementare notifiche in-app per bandi rilevanti
+- [ ] Testare sistema completo end-to-end
