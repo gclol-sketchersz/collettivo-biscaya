@@ -9,6 +9,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { cleanupExpiredCallsHandler } from "../scheduled/cleanup-expired-calls";
 import { webScrapingJobHandler } from "../scheduled/web-scraping-job";
+import { rssImportJobHandler } from "../scheduled/rss-import-job";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -40,6 +41,7 @@ async function startServer() {
   // Scheduled jobs (must be before Vite/static fallthrough)
   app.post("/api/scheduled/cleanup-expired-calls", cleanupExpiredCallsHandler);
   app.post("/api/scheduled/web-scraping", webScrapingJobHandler);
+  app.post("/api/scheduled/rss-import", rssImportJobHandler);
 
   // tRPC API
   app.use(
