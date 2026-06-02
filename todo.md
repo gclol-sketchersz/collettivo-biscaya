@@ -47,7 +47,7 @@
 - [x] Accessibilità
 
 ## Testing
-- [x] Test unitari backend (vitest) - 230 test passanti
+- [x] Test unitari backend (vitest) - 251 test passanti
   * 18 test automazione base (Fase 1)
   * 10 test job scheduler cleanup (Fase 2)
   * 14 test validazione enti (Fase 3)
@@ -57,6 +57,7 @@
   * 10 test RSS import job (Fase 5)
   * 28 test API clients (Fase 6)
   * 13 test public API import job (Fase 6)
+  * 24 test notifiche (Fase 7)
   * 85 test esistenti
 - [x] Test API - Procedure tRPC testate (11 procedure di automazione)
 - [x] Test UI - Componenti testati
@@ -273,7 +274,11 @@
 - [ ] Implementare monitoraggio Instagram (Instagram API)
 - [ ] Implementare monitoraggio Facebook (Facebook API)
 
-## Automazione Importazione Bandi - Fase 7: Notifiche
-- [ ] Implementare notifiche email per bandi rilevanti
-- [ ] Implementare notifiche in-app per bandi rilevanti
-- [ ] Testare sistema completo end-to-end
+## Automazione Importazione Bandi - Fase 7: Notifiche (COMPLETATO)
+- [x] Implementare notification service (call-notification-service.ts)
+- [x] Implementare notifiche email per bandi rilevanti
+- [x] Implementare notifiche in-app per bandi rilevanti
+- [x] Implementare filtri intelligenti (budget, tipo, regione)
+- [x] Implementare batch notifications per nuovi bandi
+- [x] Scrivere test unitari per notifiche (24 test passanti)
+- [x] Testare sistema completo end-to-end
