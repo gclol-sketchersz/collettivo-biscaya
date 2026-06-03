@@ -270,9 +270,11 @@
 - [x] Scrivere test per job scheduler (13 test passanti)
 - [x] Registrare handler nel server Express
 
-## Automazione Importazione Bandi - Fase 6b: Monitoraggio Social Media
-- [ ] Implementare monitoraggio Instagram (Instagram API)
-- [ ] Implementare monitoraggio Facebook (Facebook API)
+## Automazione Importazione Bandi - Fase 6b: Monitoraggio Social Media (RINVIATO)
+- [ ] Implementare monitoraggio Instagram (Instagram API) - Richiede API key Instagram
+- [ ] Implementare monitoraggio Facebook (Facebook API) - Richiede API key Facebook
+
+NOTA: Fase rinviata in quanto richiede credenziali esterne e configurazione aggiuntiva. Il sistema di automazione bandi è funzionale senza questa fase.
 
 ## Automazione Importazione Bandi - Fase 7: Notifiche (COMPLETATO)
 - [x] Implementare notification service (call-notification-service.ts)

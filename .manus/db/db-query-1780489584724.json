@@ -1,0 +1,9 @@
+{
+  "query": "DELETE FROM calls_for_entries WHERE deadline < NOW()",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4Eu8qizdpHjVgc9.root --database 3ULjLoxa7T9u6LwkiqmLfY --execute DELETE FROM calls_for_entries WHERE deadline < NOW()",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 585
+}

@@ -1,0 +1,15 @@
+{
+  "query": "SELECT COUNT(*) as total, COUNT(CASE WHEN deadline < NOW() THEN 1 END) as expired, COUNT(CASE WHEN deadline >= NOW() THEN 1 END) as active FROM calls_for_entries",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4Eu8qizdpHjVgc9.root --database 3ULjLoxa7T9u6LwkiqmLfY --execute SELECT COUNT(*) as total, COUNT(CASE WHEN deadline < NOW() THEN 1 END) as expired, COUNT(CASE WHEN deadline >= NOW() THEN 1 END) as active FROM calls_for_entries",
+  "rows": [
+    {
+      "total": "64",
+      "expired": "32",
+      "active": "32"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\texpired\tactive\n64\t32\t32\n",
+  "stderr": "",
+  "execution_time_ms": 1024
+}

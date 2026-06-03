@@ -74,6 +74,13 @@ export class ExibartScraper extends BaseScraper {
           // Extract budget if mentioned
           const budget = this.extractBudgetFromText(description);
 
+          // Filter out expired calls (only if deadline is in the past)
+          const now = new Date();
+          if (deadline < now) {
+            console.log(`[Exibart] Skipping expired call: ${title} (deadline: ${deadline})`);
+            return;
+          }
+
           const call: ScrapedCall = {
             title,
             description,
@@ -81,7 +88,7 @@ export class ExibartScraper extends BaseScraper {
             sourceUrl: articleUrl,
             publishedAt,
             deadline,
-            callType,
+            callType: this.mapCallTypeToStandard(callType),
             budget: budget || undefined,
             entity: "Exibart",
             country: "IT",
@@ -128,6 +135,26 @@ export class ExibartScraper extends BaseScraper {
     }
 
     return null;
+  }
+
+  /**
+   * Map internal call type to standard call type
+   */
+  private mapCallTypeToStandard(internalType: string): string {
+    const mappings: Record<string, string> = {
+      residenza: "residency",
+      premio: "award",
+      concorso: "competition",
+      mostra: "exhibition",
+      biennale: "exhibition",
+      fellowship: "fellowship",
+      grant: "grant",
+      contributo: "grant",
+      borsa: "fellowship",
+      open_call: "curatorial_open_call",
+      "open call": "curatorial_open_call",
+    };
+    return mappings[internalType.toLowerCase()] || "exhibition";
   }
 
   /**

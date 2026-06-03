@@ -76,6 +76,13 @@ export class MiBACTScraper extends BaseScraper {
           // Extract budget if mentioned
           const budget = this.extractBudgetFromText(description);
 
+          // Filter out expired calls (only if deadline is in the past)
+          const now = new Date();
+          if (deadline < now) {
+            console.log(`[MiBACT] Skipping expired call: ${title} (deadline: ${deadline})`);
+            return;
+          }
+
           const call: ScrapedCall = {
             title,
             description,
@@ -83,7 +90,7 @@ export class MiBACTScraper extends BaseScraper {
             sourceUrl: this.normalizeUrl(articleUrl),
             publishedAt,
             deadline,
-            callType,
+            callType: this.mapCallTypeToStandard(callType),
             budget: budget || undefined,
             entity: "Ministero della Cultura",
             country: "IT",
@@ -130,6 +137,23 @@ export class MiBACTScraper extends BaseScraper {
     }
 
     return null;
+  }
+
+  /**
+   * Map internal call type to standard call type
+   */
+  private mapCallTypeToStandard(internalType: string): string {
+    const mappings: Record<string, string> = {
+      bando: "exhibition",
+      avviso: "grant",
+      procedura: "competition",
+      gara: "competition",
+      concorso: "competition",
+      capitale: "grant",
+      contributo: "grant",
+      finanziamento: "grant",
+    };
+    return mappings[internalType.toLowerCase()] || "exhibition";
   }
 
   /**
