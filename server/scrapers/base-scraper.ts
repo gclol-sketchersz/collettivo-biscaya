@@ -122,7 +122,14 @@ export class BaseScraper {
       const [, day, month, year] = italianMatch;
       const monthIndex = italianMonths[month.toLowerCase()];
       if (monthIndex !== undefined) {
-        return new Date(parseInt(year), monthIndex, parseInt(day));
+        const parsedYear = parseInt(year);
+        // Validate year is in reasonable range (1900-2100)
+        if (parsedYear >= 1900 && parsedYear <= 2100) {
+          const date = new Date(parsedYear, monthIndex, parseInt(day));
+          if (!isNaN(date.getTime())) {
+            return date;
+          }
+        }
       }
     }
 

@@ -1,0 +1,30 @@
+{
+  "query": "SELECT COUNT(*) as total, callType, COUNT(DISTINCT callType) as categories FROM calls_for_entries GROUP BY callType;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4Eu8qizdpHjVgc9.root --database 3ULjLoxa7T9u6LwkiqmLfY --execute SELECT COUNT(*) as total, callType, COUNT(DISTINCT callType) as categories FROM calls_for_entries GROUP BY callType;",
+  "rows": [
+    {
+      "total": "25",
+      "callType": "exhibition",
+      "categories": "1"
+    },
+    {
+      "total": "6",
+      "callType": "grant",
+      "categories": "1"
+    },
+    {
+      "total": "11",
+      "callType": "curatorial_open_call",
+      "categories": "1"
+    },
+    {
+      "total": "19",
+      "callType": "residency",
+      "categories": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\tcallType\tcategories\n25\texhibition\t1\n6\tgrant\t1\n11\tcuratorial_open_call\t1\n19\tresidency\t1\n",
+  "stderr": "",
+  "execution_time_ms": 571
+}

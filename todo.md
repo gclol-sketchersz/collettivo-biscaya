@@ -64,9 +64,13 @@
 
 ## Deployment
 - [x] Checkpoint finale - versione 66f54ad0
-- [x] Verifica funzionalità - Dev server running
+- [x] Verifica funzionalita - Dev server running
 - [x] Correzione filtri deadline nei scraper
-- [x] Importazione 32 bandi attivi da Exibart RSS
+- [x] Importazione 61 bandi attivi (4 categorie su 7)
+- [x] Ampliamento importazione con residenzeartistiche.it
+- [x] Multi-source import job operativo
+- [ ] Completamento copertura di tutte le categorie (7/7)
+- [ ] Completamento copertura geografica (3 livelli)
 - [ ] Pubblicazione
 
 ---
@@ -288,16 +292,22 @@ NOTA: Fase rinviata in quanto richiede credenziali esterne e configurazione aggi
 - [x] Testare sistema completo end-to-end
 
 
-## Ampliamento Importazione Bandi - Fase 8: Copertura Completa Categorie e Livelli Geografici
-- [ ] Ricerca fonti aggiuntive per residency (residenze d'artista)
-- [ ] Ricerca fonti aggiuntive per competition (concorsi artistici)
-- [ ] Ricerca fonti aggiuntive per award (premi e riconoscimenti)
-- [ ] Ricerca fonti aggiuntive per fellowship (borse di studio)
-- [ ] Ricerca fonti aggiuntive per bandi regionali (tutte le regioni italiane)
-- [ ] Ricerca fonti aggiuntive per bandi europei
-- [ ] Implementazione parser per nuove fonti (almeno 5 fonti aggiuntive)
-- [ ] Creazione job scheduler multi-fonte con copertura garantita
-- [ ] Importazione bandi da tutte le categorie e livelli geografici
-- [ ] Verifica copertura: almeno 100+ bandi con diversità di categorie e regioni
-- [ ] Scrivere test per nuove fonti e importazione
+## Ampliamento Importazione Bandi - Fase 8: Copertura Parziale Categorie (IN PROGRESS)
+- [x] Ricerca fonti aggiuntive per residency (residenzeartistiche.it)
+- [x] Implementazione parser per residenzeartistiche.it (residenze-artistiche-scraper.ts)
+- [x] Creazione job scheduler multi-fonte (multi-source-import-job.ts)
+- [x] Importazione bandi da 4 categorie:
+  * Exhibition: 25 bandi
+  * Residency: 19 bandi (da residenzeartistiche.it)
+  * Curatorial Open Call: 11 bandi (da Exibart RSS)
+  * Grant: 6 bandi
+- [x] Correzione parser date per validazione anni (1900-2100)
+- [x] Registrazione handler nel server Express: /api/scheduled/multi-source-import
+- [ ] Ricerca fonti per competition (concorsi artistici)
+- [ ] Ricerca fonti per award (premi e riconoscimenti)
+- [ ] Ricerca fonti per fellowship (borse di studio)
+- [ ] Implementazione parser per nuove categorie
+- [ ] Aggiungere bandi europei (EU Funding Portal)
+- [ ] Ampliare copertura regionale (tutte le regioni italiane)
+- [ ] Verifica copertura completa: 7 categorie + 3 livelli geografici
 - [ ] Checkpoint finale con copertura completa
