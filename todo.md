@@ -65,6 +65,8 @@
 ## Deployment
 - [x] Checkpoint finale - versione 66f54ad0
 - [x] Verifica funzionalità - Dev server running
+- [x] Correzione filtri deadline nei scraper
+- [x] Importazione 32 bandi attivi da Exibart RSS
 - [ ] Pubblicazione
 
 ---
@@ -284,3 +286,18 @@ NOTA: Fase rinviata in quanto richiede credenziali esterne e configurazione aggi
 - [x] Implementare batch notifications per nuovi bandi
 - [x] Scrivere test unitari per notifiche (24 test passanti)
 - [x] Testare sistema completo end-to-end
+
+
+## Ampliamento Importazione Bandi - Fase 8: Copertura Completa Categorie e Livelli Geografici
+- [ ] Ricerca fonti aggiuntive per residency (residenze d'artista)
+- [ ] Ricerca fonti aggiuntive per competition (concorsi artistici)
+- [ ] Ricerca fonti aggiuntive per award (premi e riconoscimenti)
+- [ ] Ricerca fonti aggiuntive per fellowship (borse di studio)
+- [ ] Ricerca fonti aggiuntive per bandi regionali (tutte le regioni italiane)
+- [ ] Ricerca fonti aggiuntive per bandi europei
+- [ ] Implementazione parser per nuove fonti (almeno 5 fonti aggiuntive)
+- [ ] Creazione job scheduler multi-fonte con copertura garantita
+- [ ] Importazione bandi da tutte le categorie e livelli geografici
+- [ ] Verifica copertura: almeno 100+ bandi con diversità di categorie e regioni
+- [ ] Scrivere test per nuove fonti e importazione
+- [ ] Checkpoint finale con copertura completa

@@ -102,6 +102,18 @@ export class BaseScraper {
       ottobre: 9,
       novembre: 10,
       dicembre: 11,
+      gen: 0,
+      feb: 1,
+      mar: 2,
+      apr: 3,
+      mag: 4,
+      giu: 5,
+      lug: 6,
+      ago: 7,
+      set: 8,
+      ott: 9,
+      nov: 10,
+      dic: 11,
     };
 
     // Format: "1 giugno 2026"
