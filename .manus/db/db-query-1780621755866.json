@@ -1,0 +1,38 @@
+{
+  "query": "SELECT callType, COUNT(*) as count FROM calls_for_entries GROUP BY callType ORDER BY count DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4Eu8qizdpHjVgc9.root --database 3ULjLoxa7T9u6LwkiqmLfY --execute SELECT callType, COUNT(*) as count FROM calls_for_entries GROUP BY callType ORDER BY count DESC;",
+  "rows": [
+    {
+      "callType": "exhibition",
+      "count": "25"
+    },
+    {
+      "callType": "grant",
+      "count": "25"
+    },
+    {
+      "callType": "residency",
+      "count": "19"
+    },
+    {
+      "callType": "curatorial_open_call",
+      "count": "11"
+    },
+    {
+      "callType": "fellowship",
+      "count": "2"
+    },
+    {
+      "callType": "award",
+      "count": "2"
+    },
+    {
+      "callType": "competition",
+      "count": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "callType\tcount\nexhibition\t25\ngrant\t25\nresidency\t19\ncuratorial_open_call\t11\nfellowship\t2\naward\t2\ncompetition\t1\n",
+  "stderr": "",
+  "execution_time_ms": 685
+}

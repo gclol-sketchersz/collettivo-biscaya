@@ -13,6 +13,9 @@ import { eq } from "drizzle-orm";
 import { ResidenzeArtisticheScraper } from "../scrapers/residenze-artistiche-scraper";
 import { ExibartRSSParser } from "../rss/exibart-rss-parser";
 import { CallDeduplicator } from "../scrapers/deduplicator";
+import { CompetitionScraper } from "../scrapers/competition-scraper";
+import { AwardScraper } from "../scrapers/award-scraper";
+import { FellowshipEuropeanScraper } from "../scrapers/fellowship-european-scraper";
 
 interface ImportResult {
   ok: boolean;
@@ -111,7 +114,79 @@ export async function handleMultiSourceImport(req: Request, res: Response): Prom
       console.error("[MultiSourceImportJob] Exibart RSS error:", error);
     }
 
-    // 3. Deduplication
+    // 3. Competition (Concorsi Artistici)
+    console.log("[MultiSourceImportJob] Scraping Competition calls...");
+    try {
+      const competitionScraper = new CompetitionScraper({ baseUrl: "https://www.giovaniartisti.it" });
+      const competitionCalls = await competitionScraper.scrapeAll();
+      console.log(`[MultiSourceImportJob] Competition: Found ${competitionCalls.length} calls`);
+      
+      const competitionCategories = new Set<string>();
+      competitionCalls.forEach(c => {
+        if (c.callType) competitionCategories.add(c.callType);
+      });
+
+      result.sourcesImported.push({
+        name: "Competition Calls",
+        callsFound: competitionCalls.length,
+        callsImported: 0,
+        categoriesImported: Array.from(competitionCategories),
+      });
+      allCalls.push(...competitionCalls);
+      result.totalCallsScraped += competitionCalls.length;
+    } catch (error) {
+      console.error("[MultiSourceImportJob] Competition error:", error);
+    }
+
+    // 4. Award (Premi e Riconoscimenti)
+    console.log("[MultiSourceImportJob] Scraping Award calls...");
+    try {
+      const awardScraper = new AwardScraper({ baseUrl: "https://fondazionesozzani.org" });
+      const awardCalls = await awardScraper.scrapeAll();
+      console.log(`[MultiSourceImportJob] Award: Found ${awardCalls.length} calls`);
+      
+      const awardCategories = new Set<string>();
+      awardCalls.forEach(c => {
+        if (c.callType) awardCategories.add(c.callType);
+      });
+
+      result.sourcesImported.push({
+        name: "Award Calls",
+        callsFound: awardCalls.length,
+        callsImported: 0,
+        categoriesImported: Array.from(awardCategories),
+      });
+      allCalls.push(...awardCalls);
+      result.totalCallsScraped += awardCalls.length;
+    } catch (error) {
+      console.error("[MultiSourceImportJob] Award error:", error);
+    }
+
+    // 5. Fellowship & European (Borse di Studio e Bandi Europei)
+    console.log("[MultiSourceImportJob] Scraping Fellowship & European calls...");
+    try {
+      const fellowshipScraper = new FellowshipEuropeanScraper({ baseUrl: "https://urbanglass.org" });
+      const fellowshipCalls = await fellowshipScraper.scrapeAll();
+      console.log(`[MultiSourceImportJob] Fellowship & European: Found ${fellowshipCalls.length} calls`);
+      
+      const fellowshipCategories = new Set<string>();
+      fellowshipCalls.forEach(c => {
+        if (c.callType) fellowshipCategories.add(c.callType);
+      });
+
+      result.sourcesImported.push({
+        name: "Fellowship & European",
+        callsFound: fellowshipCalls.length,
+        callsImported: 0,
+        categoriesImported: Array.from(fellowshipCategories),
+      });
+      allCalls.push(...fellowshipCalls);
+      result.totalCallsScraped += fellowshipCalls.length;
+    } catch (error) {
+      console.error("[MultiSourceImportJob] Fellowship & European error:", error);
+    }
+
+    // 6. Deduplication
     console.log(`[MultiSourceImportJob] Deduplicating ${allCalls.length} calls...`);
     const deduplicationResult = deduplicator.deduplicate(allCalls);
     const deduplicatedCalls = deduplicationResult.unique;

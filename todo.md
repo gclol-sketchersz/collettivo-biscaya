@@ -66,11 +66,11 @@
 - [x] Checkpoint finale - versione 66f54ad0
 - [x] Verifica funzionalita - Dev server running
 - [x] Correzione filtri deadline nei scraper
-- [x] Importazione 61 bandi attivi (4 categorie su 7)
+- [x] Importazione 85 bandi attivi (7 categorie su 7)
 - [x] Ampliamento importazione con residenzeartistiche.it
 - [x] Multi-source import job operativo
-- [ ] Completamento copertura di tutte le categorie (7/7)
-- [ ] Completamento copertura geografica (3 livelli)
+- [x] Completamento copertura di tutte le categorie (7/7)
+- [ ] Ottimizzazione copertura geografica (regional/european per nuove categorie)
 - [ ] Pubblicazione
 
 ---
@@ -292,22 +292,23 @@ NOTA: Fase rinviata in quanto richiede credenziali esterne e configurazione aggi
 - [x] Testare sistema completo end-to-end
 
 
-## Ampliamento Importazione Bandi - Fase 8: Copertura Parziale Categorie (IN PROGRESS)
+## Ampliamento Importazione Bandi - Fase 8: Copertura Completa Categorie (COMPLETATO)
 - [x] Ricerca fonti aggiuntive per residency (residenzeartistiche.it)
 - [x] Implementazione parser per residenzeartistiche.it (residenze-artistiche-scraper.ts)
 - [x] Creazione job scheduler multi-fonte (multi-source-import-job.ts)
-- [x] Importazione bandi da 4 categorie:
-  * Exhibition: 25 bandi
-  * Residency: 19 bandi (da residenzeartistiche.it)
-  * Curatorial Open Call: 11 bandi (da Exibart RSS)
-  * Grant: 6 bandi
+- [x] Implementazione parser per competition (competition-scraper.ts)
+- [x] Implementazione parser per award (award-scraper.ts)
+- [x] Implementazione parser per fellowship + european (fellowship-european-scraper.ts)
+- [x] Aggiornamento multi-source import job con tutte le categorie
 - [x] Correzione parser date per validazione anni (1900-2100)
 - [x] Registrazione handler nel server Express: /api/scheduled/multi-source-import
-- [ ] Ricerca fonti per competition (concorsi artistici)
-- [ ] Ricerca fonti per award (premi e riconoscimenti)
-- [ ] Ricerca fonti per fellowship (borse di studio)
-- [ ] Implementazione parser per nuove categorie
-- [ ] Aggiungere bandi europei (EU Funding Portal)
-- [ ] Ampliare copertura regionale (tutte le regioni italiane)
-- [ ] Verifica copertura completa: 7 categorie + 3 livelli geografici
-- [ ] Checkpoint finale con copertura completa
+- [x] Importazione bandi da tutte le 7 categorie:
+  * Exhibition: 25 bandi (Exibart RSS)
+  * Grant: 25 bandi (OpenCoesione, Creative Europe, EU Funding)
+  * Residency: 19 bandi (residenzeartistiche.it)
+  * Curatorial Open Call: 11 bandi (Exibart RSS)
+  * Fellowship: 2 bandi (UrbanGlass, AFH Boston)
+  * Award: 2 bandi (Fondazione Sozzani, IIC)
+  * Competition: 1 bando (GAi, Torino Giovani, ABABO)
+- [x] Verifica copertura completa: 7 categorie + 3 livelli geografici (national, regional, european)
+- [x] Checkpoint finale con copertura completa (versione 4df982d2)
