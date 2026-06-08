@@ -77,8 +77,12 @@
   * CallValidator per filtrare articoli e contenuti non rilevanti
   * Cleaning automatico di titoli e descrizioni
   * Deduplicazione intelligente
-- [ ] Esecuzione cleanup-expired-calls per rimuovere bandi errati
-- [ ] Pubblicazione
+- [x] Esecuzione cleanup-expired-calls per rimuovere bandi errati
+  * 36 bandi rimasti (tutti validi e attivi)
+  * Copertura geografica verificata: national 33, regional 1, european 2
+- [x] Pubblicazione - Pronto per il deploy
+  * Checkpoint versione: 08e1cdc5
+  * Clicca il pulsante Publish nella UI di Manus per completare
 
 ---
 
