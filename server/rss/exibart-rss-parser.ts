@@ -5,6 +5,7 @@
  */
 
 import { BaseRSSParser, type RSSCall, type RSSFeedConfig } from "./base-rss-parser";
+import { CallValidator } from "../scrapers/call-validator";
 
 export class ExibartRSSParser extends BaseRSSParser {
   constructor() {
@@ -23,6 +24,11 @@ export class ExibartRSSParser extends BaseRSSParser {
   protected parseRSSItem(item: any): RSSCall | null {
     const baseCall = super.parseRSSItem(item);
     if (!baseCall) return null;
+
+    // Validate that this is a real call, not an article
+    if (!CallValidator.isValidCall(baseCall.title, baseCall.description, this.source)) {
+      return null;
+    }
 
     // Extract additional metadata from Exibart items
     const category = this.getText(item.category);
@@ -48,6 +54,15 @@ export class ExibartRSSParser extends BaseRSSParser {
         baseCall.budget = budget;
       }
     }
+
+    // Validate deadline is reasonable
+    if (baseCall.deadline && !CallValidator.isValidDeadline(baseCall.deadline)) {
+      return null;
+    }
+
+    // Clean title and description
+    baseCall.title = CallValidator.cleanTitle(baseCall.title);
+    baseCall.description = CallValidator.cleanDescription(baseCall.description);
 
     return baseCall;
   }

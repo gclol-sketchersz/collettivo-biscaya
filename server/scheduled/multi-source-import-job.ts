@@ -207,18 +207,31 @@ export async function handleMultiSourceImport(req: Request, res: Response): Prom
         if (existing.length === 0) {
           // Insert new call
           const callType = mapCallType(call.callType || "curatorial_open_call");
+          const geographicLevel = determineGeographicLevel(call, callType);
+          
+          // Clean and truncate title and description
+          const cleanTitle = call.title
+            .replace(/\s+/g, ' ')
+            .trim()
+            .substring(0, 255);
+          
+          const cleanDescription = call.description
+            .replace(/\s+/g, ' ')
+            .trim()
+            .substring(0, 5000);
+          
           await db.insert(callsForEntries).values({
-            title: call.title,
+            title: cleanTitle,
             entity: call.entity || "Unknown",
             country: call.country || "IT",
-            geographicLevel: "national",
+            geographicLevel: geographicLevel,
             callType,
             deadline: call.deadline,
             budgetMin: call.budget ? Math.floor(call.budget) : undefined,
             budgetMax: call.budget ? Math.floor(call.budget) : undefined,
             budgetCurrency: "EUR",
             externalLink: call.sourceUrl,
-            requirements: call.description,
+            requirements: cleanDescription,
             isActive: 1,
           });
 
@@ -283,4 +296,33 @@ function mapCallType(type: string): "exhibition" | "residency" | "competition" |
     avviso: "curatorial_open_call",
   };
   return typeMap[type.toLowerCase()] || "curatorial_open_call";
+}
+
+/**
+ * Determine geographic level based on call data and type
+ */
+function determineGeographicLevel(call: any, callType: string): "national" | "regional" | "european" {
+  // European calls: fellowship, international grants
+  if (callType === "fellowship" || callType === "grant") {
+    if (call.country === "Europe" || call.country === "USA" || 
+        call.entity?.toLowerCase().includes("european") || 
+        call.entity?.toLowerCase().includes("eu") ||
+        call.source?.toLowerCase().includes("creative europe") ||
+        call.source?.toLowerCase().includes("eu funding")) {
+      return "european";
+    }
+  }
+
+  // Regional calls: residency programs in specific regions
+  if (callType === "residency" || callType === "competition") {
+    const regionKeywords = ["piemonte", "veneto", "lombardia", "toscana", "lazio", "campania", "sicilia", "emilia", "marche", "umbria"];
+    const callText = `${call.title} ${call.description} ${call.tags?.join(" ") || ""}`.toLowerCase();
+    
+    if (regionKeywords.some(region => callText.includes(region))) {
+      return "regional";
+    }
+  }
+
+  // Default to national for Italian calls
+  return "national";
 }

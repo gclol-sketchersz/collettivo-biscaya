@@ -66,11 +66,18 @@
 - [x] Checkpoint finale - versione 66f54ad0
 - [x] Verifica funzionalita - Dev server running
 - [x] Correzione filtri deadline nei scraper
-- [x] Importazione 85 bandi attivi (7 categorie su 7)
+- [x] Importazione 36 bandi attivi (5 categorie su 7)
 - [x] Ampliamento importazione con residenzeartistiche.it
 - [x] Multi-source import job operativo
-- [x] Completamento copertura di tutte le categorie (7/7)
-- [ ] Ottimizzazione copertura geografica (regional/european per nuove categorie)
+- [x] Completamento copertura geografica dinamica
+  * Supporto european per fellowship (UrbanGlass, AFH Boston)
+  * Supporto regional per competition (Torino Giovani)
+  * Supporto national per residency, curatorial, award
+- [x] Correzione validazione e cleaning dei dati
+  * CallValidator per filtrare articoli e contenuti non rilevanti
+  * Cleaning automatico di titoli e descrizioni
+  * Deduplicazione intelligente
+- [ ] Esecuzione cleanup-expired-calls per rimuovere bandi errati
 - [ ] Pubblicazione
 
 ---

@@ -7,6 +7,7 @@
  */
 
 import { BaseScraper, ScrapedCall } from "./base-scraper";
+import { CallValidator } from "./call-validator";
 
 export class ResidenzeArtisticheScraper extends BaseScraper {
   private normalizeUrl(url: string): string {
@@ -67,6 +68,18 @@ export class ResidenzeArtisticheScraper extends BaseScraper {
           const now = new Date();
           if (deadline < now) {
             console.log(`[ResidenzeArtistiche] Skipping expired call: ${title} (deadline: ${deadline})`);
+            return;
+          }
+
+          // Validate that this is a real call, not an article
+          if (!CallValidator.isValidCall(title, description, "residenze-artistiche")) {
+            console.log(`[ResidenzeArtistiche] Skipping non-call content: ${title}`);
+            return;
+          }
+
+          // Validate deadline
+          if (!CallValidator.isValidDeadline(deadline)) {
+            console.log(`[ResidenzeArtistiche] Skipping call with invalid deadline: ${title}`);
             return;
           }
 
