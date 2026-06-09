@@ -80,9 +80,10 @@
 - [x] Esecuzione cleanup-expired-calls per rimuovere bandi errati
   * 36 bandi rimasti (tutti validi e attivi)
   * Copertura geografica verificata: national 33, regional 1, european 2
-- [x] Pubblicazione - Pronto per il deploy
-  * Checkpoint versione: 08e1cdc5
-  * Clicca il pulsante Publish nella UI di Manus per completare
+- [x] Cleanup eseguito - 36 bandi rimasti (tutti validi)
+- [x] Sistema pronto per la pubblicazione
+  * Checkpoint versione: ba007894
+  * Clicca il pulsante Publish nella UI di Manus per completare il deploy
 
 ---
 
