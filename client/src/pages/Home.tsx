@@ -1,13 +1,15 @@
+import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Anchor, Waves, Compass, Zap, Lock, Globe } from "lucide-react";
-import { getLoginUrl } from "@/const";
+import { Anchor, Compass, Zap, Shield } from "lucide-react";
 import { Link } from "wouter";
 import NavMenu from "@/components/NavMenu";
+import AuthModal from "@/components/AuthModal";
 
 export default function Home() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
+  const [authOpen, setAuthOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-blue-50/30 to-background dark:from-background dark:via-blue-950/20 dark:to-background">
@@ -21,12 +23,22 @@ export default function Home() {
           <div className="flex items-center gap-4">
             {isAuthenticated ? (
               <>
-                <span className="text-sm text-muted-foreground">{user?.name}</span>
+                {user?.role === "admin" && (
+                  <Link href="/admin">
+                    <Button variant="outline" size="sm" className="gap-1.5">
+                      <Shield className="w-3.5 h-3.5" />
+                      Admin
+                    </Button>
+                  </Link>
+                )}
+                <Link href="/calls">
+                  <Button variant="ghost" size="sm">Bandi</Button>
+                </Link>
+                <span className="text-sm text-muted-foreground hidden sm:block">{user?.name}</span>
+                <Button variant="outline" size="sm" onClick={() => logout()}>Esci</Button>
               </>
             ) : (
-              <a href={getLoginUrl()}>
-                <Button className="btn-marine">Accedi</Button>
-              </a>
+              <Button className="btn-marine" onClick={() => setAuthOpen(true)}>Accedi</Button>
             )}
           </div>
         </div>
@@ -43,11 +55,15 @@ export default function Home() {
               Scopri e candidati ai migliori bandi culturali: mostre, residenze d'artista, concorsi, finanziamenti e fellowship. Tutto in un'unica piattaforma.
             </p>
             <div className="flex gap-4">
-              <a href={getLoginUrl()}>
-                <Button size="lg" className="btn-marine">
+              {isAuthenticated ? (
+                <Link href="/calls">
+                  <Button size="lg" className="btn-marine">Esplora i Bandi</Button>
+                </Link>
+              ) : (
+                <Button size="lg" className="btn-marine" onClick={() => setAuthOpen(true)}>
                   Inizia Gratuitamente
                 </Button>
-              </a>
+              )}
               <Button size="lg" variant="outline">
                 Scopri di più
               </Button>
@@ -131,7 +147,6 @@ export default function Home() {
             {
               name: "Base",
               price: "€30/mese",
-              color: "blue",
               features: [
                 "Bandi regionali",
                 "Ricerca e filtri",
@@ -143,7 +158,6 @@ export default function Home() {
             {
               name: "Premium",
               price: "€50/mese",
-              color: "purple",
               features: [
                 "Tutto di Base +",
                 "Bandi nazionali",
@@ -156,7 +170,6 @@ export default function Home() {
             {
               name: "Pro",
               price: "€90/mese",
-              color: "amber",
               features: [
                 "Tutto di Premium +",
                 "Bandi europei",
@@ -194,8 +207,9 @@ export default function Home() {
               <Button
                 className={tier.highlight ? "btn-marine w-full" : "w-full"}
                 variant={tier.highlight ? "default" : "outline"}
+                onClick={() => !isAuthenticated && setAuthOpen(true)}
               >
-                {tier.price === "€30/mese" ? "Inizia Ora" : "Sottoscrivi"}
+                {isAuthenticated ? "Gestisci" : tier.price === "€30/mese" ? "Inizia Ora" : "Sottoscrivi"}
               </Button>
             </Card>
           ))}
@@ -211,11 +225,15 @@ export default function Home() {
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Unisciti a centinaia di artisti e operatori culturali che stanno già navigando il mare della cultura con Collettivo Biscaya.
           </p>
-          <a href={getLoginUrl()}>
-            <Button size="lg" className="btn-marine">
+          {isAuthenticated ? (
+            <Link href="/calls">
+              <Button size="lg" className="btn-marine">Esplora i Bandi</Button>
+            </Link>
+          ) : (
+            <Button size="lg" className="btn-marine" onClick={() => setAuthOpen(true)}>
               Accedi Gratuitamente
             </Button>
-          </a>
+          )}
         </div>
       </section>
 
@@ -232,9 +250,9 @@ export default function Home() {
             <div>
               <h4 className="font-semibold mb-4 text-foreground">Piattaforma</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-primary">Bandi</a></li>
-                <li><a href="#" className="hover:text-primary">Dashboard</a></li>
-                <li><a href="#" className="hover:text-primary">Sottoscrizioni</a></li>
+                <li><Link href="/calls" className="hover:text-primary">Bandi</Link></li>
+                <li><Link href="/dashboard" className="hover:text-primary">Dashboard</Link></li>
+                <li><Link href="/subscriptions" className="hover:text-primary">Sottoscrizioni</Link></li>
               </ul>
             </div>
             <div>
@@ -259,6 +277,8 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
     </div>
   );
 }

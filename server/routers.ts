@@ -1,4 +1,4 @@
-import { COOKIE_NAME } from "@shared/const";
+import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
@@ -6,7 +6,17 @@ import { emailPreferencesRouter } from "./routers/email-preferences";
 import { advancedSearchRouter } from "./routers/advanced-search";
 import { statisticsRouter } from "./routers/statistics";
 import { rssRouter } from "./routers/rss";
-import { getAirtableCalls, getAirtableCallById, isAirtableConfigured, type AirtableCall } from "./airtable";
+import {
+  getAirtableCalls,
+  getAirtableCallById,
+  isAirtableConfigured,
+  type AirtableCall,
+  findUserByEmail,
+  createAirtableUser,
+  hashNewPassword,
+  verifyPassword,
+} from "./airtable";
+import { sdk } from "./_core/sdk";
 import {
   getAllActiveCalls,
   getCallsByLevel,
@@ -54,12 +64,93 @@ export const appRouter = router({
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
+
+    login: publicProcedure
+      .input(z.object({
+        email: z.string().email(),
+        password: z.string().min(1),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const airtableUser = await findUserByEmail(input.email);
+        if (!airtableUser) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Email o password non corretti." });
+        }
+
+        const valid = verifyPassword(input.password, airtableUser.passwordHash);
+        if (!valid) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Email o password non corretti." });
+        }
+
+        const sessionToken = await sdk.signSession({
+          openId: airtableUser.id,
+          appId: "collettivo-biscaya",
+          name: airtableUser.name,
+        }, { expiresInMs: ONE_YEAR_MS });
+
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, sessionToken, {
+          ...cookieOptions,
+          maxAge: ONE_YEAR_MS,
+        });
+
+        return {
+          success: true,
+          user: {
+            id: airtableUser.id,
+            name: airtableUser.name,
+            email: airtableUser.email,
+            role: airtableUser.role,
+          },
+        };
+      }),
+
+    register: publicProcedure
+      .input(z.object({
+        email: z.string().email(),
+        name: z.string().min(1),
+        password: z.string().min(6),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const existing = await findUserByEmail(input.email);
+        if (existing) {
+          throw new TRPCError({ code: "CONFLICT", message: "Un account con questa email esiste già." });
+        }
+
+        const passwordHash = hashNewPassword(input.password);
+        const airtableUser = await createAirtableUser(
+          input.email,
+          input.name,
+          passwordHash,
+          "user"
+        );
+
+        const sessionToken = await sdk.signSession({
+          openId: airtableUser.id,
+          appId: "collettivo-biscaya",
+          name: airtableUser.name,
+        }, { expiresInMs: ONE_YEAR_MS });
+
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, sessionToken, {
+          ...cookieOptions,
+          maxAge: ONE_YEAR_MS,
+        });
+
+        return {
+          success: true,
+          user: {
+            id: airtableUser.id,
+            name: airtableUser.name,
+            email: airtableUser.email,
+            role: airtableUser.role,
+          },
+        };
+      }),
+
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-      return {
-        success: true,
-      } as const;
+      return { success: true } as const;
     }),
   }),
 

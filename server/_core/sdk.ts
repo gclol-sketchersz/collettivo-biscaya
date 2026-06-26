@@ -257,7 +257,6 @@ class SDKServer {
   }
 
   async authenticateRequest(req: Request): Promise<User> {
-    // Regular authentication flow
     const cookies = this.parseCookies(req.headers.cookie);
     const sessionCookie = cookies.get(COOKIE_NAME);
     const session = await this.verifySession(sessionCookie);
@@ -268,6 +267,39 @@ class SDKServer {
 
     const sessionUserId = session.openId;
     const signedInAt = new Date();
+
+    // Airtable record IDs start with "rec" — these are email/password auth users.
+    if (sessionUserId.startsWith("rec")) {
+      const { findUserByEmail, isAirtableConfigured } = await import("../airtable");
+      if (isAirtableConfigured()) {
+        // We need the role stored in Airtable; look it up by email stored in
+        // all records. As a fast path, scan by openId (record ID).
+        const { getAirtableCalls } = await import("../airtable");
+        // Build a synthetic User from the JWT payload + a best-effort role lookup.
+        // The full user data (incl. role) is in Airtable; we fetch it via email
+        // if needed, but for most cases the session payload has enough info.
+        // We do a quick lookup to get the role right.
+        let role: "user" | "admin" = "user";
+        try {
+          const { getAirtableUserById } = await import("../airtable");
+          const atUser = await getAirtableUserById(sessionUserId);
+          if (atUser) role = atUser.role;
+        } catch { /* ignore, default to user */ }
+
+        return {
+          id: 0,
+          openId: sessionUserId,
+          name: session.name || null,
+          email: null,
+          loginMethod: "email",
+          role,
+          createdAt: signedInAt,
+          updatedAt: signedInAt,
+          lastSignedIn: signedInAt,
+        } as User;
+      }
+    }
+
     let user = await db.getUserByOpenId(sessionUserId);
 
     // If user not in DB, sync from OAuth server automatically

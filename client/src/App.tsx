@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
+import RequireAuth from "./components/RequireAuth";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
@@ -16,29 +17,38 @@ import Statistics from "./pages/Statistics";
 import JuanaChat from "./components/JuanaChat";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/dashboard" component={Dashboard} />
-      <Route path="/subscriptions" component={Subscriptions} />
-      <Route path="/admin" component={Admin} />
-      <Route path="/email-preferences" component={EmailPreferences} />
-      <Route path="/calls" component={Calls} />
-      <Route path="/calls/:id" component={CallDetail} />
-      <Route path="/advanced-search" component={AdvancedSearch} />
-      <Route path="/statistics" component={Statistics} />
+      <Route path="/dashboard">
+        <RequireAuth><Dashboard /></RequireAuth>
+      </Route>
+      <Route path="/subscriptions">
+        <RequireAuth><Subscriptions /></RequireAuth>
+      </Route>
+      <Route path="/admin">
+        <RequireAuth><Admin /></RequireAuth>
+      </Route>
+      <Route path="/email-preferences">
+        <RequireAuth><EmailPreferences /></RequireAuth>
+      </Route>
+      <Route path="/calls">
+        <RequireAuth><Calls /></RequireAuth>
+      </Route>
+      <Route path="/calls/:id">
+        {(params) => <RequireAuth><CallDetail /></RequireAuth>}
+      </Route>
+      <Route path="/advanced-search">
+        <RequireAuth><AdvancedSearch /></RequireAuth>
+      </Route>
+      <Route path="/statistics">
+        <RequireAuth><Statistics /></RequireAuth>
+      </Route>
       <Route path="/404" component={NotFound} />
-      {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
   );
 }
-
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
 
 function App() {
   return (

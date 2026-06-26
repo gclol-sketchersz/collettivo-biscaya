@@ -3,10 +3,13 @@
  * Uses the Airtable REST API with a Personal Access Token.
  *
  * Required env vars:
- *  - AIRTABLE_API_KEY   – Personal Access Token (pat...)
- *  - AIRTABLE_BASE_ID   – e.g. "appXXXXXXXXXXXXXX"
- *  - AIRTABLE_TABLE_NAME – e.g. "Bandi" (table name as shown in Airtable)
+ *  - AIRTABLE_API_KEY       – Personal Access Token (pat...)
+ *  - AIRTABLE_BASE_ID       – e.g. "appXXXXXXXXXXXXXX"
+ *  - AIRTABLE_TABLE_NAME    – e.g. "Bandi" (table name as shown in Airtable)
+ *  - AIRTABLE_USERS_TABLE   – e.g. "Utenti" (users table name)
  */
+
+import { createHash, randomBytes, timingSafeEqual } from "crypto";
 
 const AIRTABLE_API_URL = "https://api.airtable.com";
 
@@ -168,4 +171,142 @@ export async function getAirtableCallById(id: string): Promise<AirtableCall | nu
 
 export function isAirtableConfigured(): boolean {
   return getEnv() !== null;
+}
+
+// ---------------------------------------------------------------------------
+// User auth (Airtable users table)
+// ---------------------------------------------------------------------------
+
+export type AirtableUser = {
+  recordId: string;
+  id: string;
+  email: string;
+  name: string;
+  passwordHash: string;
+  role: "user" | "admin";
+};
+
+function getUsersTableName(): string {
+  return process.env.AIRTABLE_USERS_TABLE || "Utenti";
+}
+
+function hashPassword(password: string, salt: string): string {
+  return createHash("sha256").update(salt + password).digest("hex");
+}
+
+function generateSalt(): string {
+  return randomBytes(16).toString("hex");
+}
+
+export function hashNewPassword(password: string): string {
+  const salt = generateSalt();
+  const hash = hashPassword(password, salt);
+  return `${salt}:${hash}`;
+}
+
+export function verifyPassword(password: string, stored: string): boolean {
+  const parts = stored.split(":");
+  if (parts.length !== 2) return false;
+  const [salt, hash] = parts;
+  const candidate = hashPassword(password, salt);
+  try {
+    return timingSafeEqual(Buffer.from(hash, "hex"), Buffer.from(candidate, "hex"));
+  } catch {
+    return false;
+  }
+}
+
+async function airtableRequest(
+  method: string,
+  path: string,
+  body?: unknown
+): Promise<unknown> {
+  const env = getEnv();
+  if (!env) throw new Error("Airtable not configured");
+
+  const res = await fetch(`${AIRTABLE_API_URL}/v0/${env.baseId}/${path}`, {
+    method,
+    headers: {
+      Authorization: `Bearer ${env.apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Airtable ${method} error ${res.status}: ${text}`);
+  }
+
+  return res.json();
+}
+
+export async function findUserByEmail(email: string): Promise<AirtableUser | null> {
+  const env = getEnv();
+  if (!env) return null;
+
+  const tableName = getUsersTableName();
+  const url = new URL(`${AIRTABLE_API_URL}/v0/${env.baseId}/${encodeURIComponent(tableName)}`);
+  url.searchParams.set("filterByFormula", `{email}="${email.toLowerCase()}"`);
+  url.searchParams.set("maxRecords", "1");
+
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${env.apiKey}` },
+  });
+
+  if (!res.ok) return null;
+
+  const data = (await res.json()) as AirtableListResponse;
+  const record = data.records[0];
+  if (!record) return null;
+
+  return mapRecordToUser(record);
+}
+
+export async function createAirtableUser(
+  email: string,
+  name: string,
+  passwordHash: string,
+  role: "user" | "admin" = "user"
+): Promise<AirtableUser> {
+  const tableName = getUsersTableName();
+  const data = (await airtableRequest("POST", encodeURIComponent(tableName), {
+    fields: {
+      email: email.toLowerCase(),
+      name,
+      passwordHash,
+      role,
+    },
+  })) as AirtableRecord;
+
+  return mapRecordToUser(data);
+}
+
+function mapRecordToUser(record: AirtableRecord): AirtableUser {
+  const f = record.fields;
+  const roleRaw = String(f["role"] ?? "user").toLowerCase();
+  return {
+    recordId: record.id,
+    id: record.id,
+    email: String(f["email"] ?? ""),
+    name: String(f["name"] ?? ""),
+    passwordHash: String(f["passwordHash"] ?? ""),
+    role: roleRaw === "admin" ? "admin" : "user",
+  };
+}
+
+export async function getAirtableUserById(recordId: string): Promise<AirtableUser | null> {
+  const env = getEnv();
+  if (!env) return null;
+
+  const tableName = getUsersTableName();
+  const res = await fetch(
+    `${AIRTABLE_API_URL}/v0/${env.baseId}/${encodeURIComponent(tableName)}/${recordId}`,
+    { headers: { Authorization: `Bearer ${env.apiKey}` } }
+  );
+
+  if (!res.ok) return null;
+
+  const record = (await res.json()) as AirtableRecord;
+  return mapRecordToUser(record);
 }
