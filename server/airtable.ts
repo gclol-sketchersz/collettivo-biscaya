@@ -222,7 +222,7 @@ async function airtableRequest(
   body?: unknown
 ): Promise<unknown> {
   const env = getEnv();
-  if (!env) throw new Error("Airtable not configured");
+  if (!env) throw new Error("Airtable non configurato: variabili AIRTABLE_API_KEY, AIRTABLE_BASE_ID, AIRTABLE_TABLE_NAME mancanti.");
 
   const res = await fetch(`${AIRTABLE_API_URL}/v0/${env.baseId}/${path}`, {
     method,
@@ -235,7 +235,13 @@ async function airtableRequest(
 
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`Airtable ${method} error ${res.status}: ${text}`);
+    if (res.status === 404) {
+      const tableName = decodeURIComponent(path.split("?")[0]);
+      throw new Error(`Tabella Airtable '${tableName}' non trovata. Verifica il nome della tabella in AIRTABLE_USERS_TABLE.`);
+    }
+    if (res.status === 401 || res.status === 403) throw new Error("Chiave API Airtable non valida o permessi insufficienti. Verifica AIRTABLE_API_KEY.");
+    if (res.status === 422) throw new Error(`Dati non validi per Airtable. Verifica che i campi email, name, passwordHash, role esistano nella tabella. Dettagli: ${text}`);
+    throw new Error(`Errore Airtable ${method} ${res.status}: ${text}`);
   }
 
   return res.json();
@@ -243,7 +249,7 @@ async function airtableRequest(
 
 export async function findUserByEmail(email: string): Promise<AirtableUser | null> {
   const env = getEnv();
-  if (!env) return null;
+  if (!env) throw new Error("Airtable non configurato: variabili AIRTABLE_API_KEY, AIRTABLE_BASE_ID, AIRTABLE_TABLE_NAME mancanti.");
 
   const tableName = getUsersTableName();
   const url = new URL(`${AIRTABLE_API_URL}/v0/${env.baseId}/${encodeURIComponent(tableName)}`);
@@ -254,7 +260,12 @@ export async function findUserByEmail(email: string): Promise<AirtableUser | nul
     headers: { Authorization: `Bearer ${env.apiKey}` },
   });
 
-  if (!res.ok) return null;
+  if (!res.ok) {
+    const text = await res.text();
+    if (res.status === 404) throw new Error(`Tabella Airtable '${tableName}' non trovata. Verifica AIRTABLE_USERS_TABLE.`);
+    if (res.status === 401 || res.status === 403) throw new Error("Chiave API Airtable non valida o permessi insufficienti.");
+    throw new Error(`Errore Airtable ${res.status}: ${text}`);
+  }
 
   const data = (await res.json()) as AirtableListResponse;
   const record = data.records[0];

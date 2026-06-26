@@ -71,7 +71,12 @@ export const appRouter = router({
         password: z.string().min(1),
       }))
       .mutation(async ({ input, ctx }) => {
-        const airtableUser = await findUserByEmail(input.email);
+        let airtableUser;
+        try {
+          airtableUser = await findUserByEmail(input.email);
+        } catch (e: any) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message });
+        }
         if (!airtableUser) {
           throw new TRPCError({ code: "UNAUTHORIZED", message: "Email o password non corretti." });
         }
@@ -111,18 +116,28 @@ export const appRouter = router({
         password: z.string().min(6),
       }))
       .mutation(async ({ input, ctx }) => {
-        const existing = await findUserByEmail(input.email);
+        let existing;
+        try {
+          existing = await findUserByEmail(input.email);
+        } catch (e: any) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message });
+        }
         if (existing) {
           throw new TRPCError({ code: "CONFLICT", message: "Un account con questa email esiste già." });
         }
 
         const passwordHash = hashNewPassword(input.password);
-        const airtableUser = await createAirtableUser(
-          input.email,
-          input.name,
-          passwordHash,
-          "user"
-        );
+        let airtableUser;
+        try {
+          airtableUser = await createAirtableUser(
+            input.email,
+            input.name,
+            passwordHash,
+            "user"
+          );
+        } catch (e: any) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message });
+        }
 
         const sessionToken = await sdk.signSession({
           openId: airtableUser.id,
