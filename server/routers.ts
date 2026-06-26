@@ -6,6 +6,7 @@ import { emailPreferencesRouter } from "./routers/email-preferences";
 import { advancedSearchRouter } from "./routers/advanced-search";
 import { statisticsRouter } from "./routers/statistics";
 import { rssRouter } from "./routers/rss";
+import { getAirtableCalls, getAirtableCallById, isAirtableConfigured, type AirtableCall } from "./airtable";
 import {
   getAllActiveCalls,
   getCallsByLevel,
@@ -64,12 +65,16 @@ export const appRouter = router({
 
   /**
    * Calls for entries (bandi culturali)
+   * Uses Airtable when configured, falls back to database otherwise.
    */
   calls: router({
     /**
      * Get all active calls
      */
     getAll: publicProcedure.query(async () => {
+      if (isAirtableConfigured()) {
+        return await getAirtableCalls();
+      }
       return await getAllActiveCalls();
     }),
 
@@ -79,16 +84,24 @@ export const appRouter = router({
     getByLevel: publicProcedure
       .input(z.enum(["regional", "national", "european"]))
       .query(async ({ input }) => {
+        if (isAirtableConfigured()) {
+          const all = await getAirtableCalls();
+          return all.filter((c) => c.geographicLevel === input);
+        }
         return await getCallsByLevel(input);
       }),
 
     /**
      * Get single call by ID
+     * Accepts both numeric (DB) and string (Airtable) IDs.
      */
     getById: publicProcedure
-      .input(z.number())
+      .input(z.union([z.number(), z.string()]))
       .query(async ({ input }) => {
-        return await getCallById(input);
+        if (isAirtableConfigured()) {
+          return await getAirtableCallById(String(input));
+        }
+        return await getCallById(typeof input === "number" ? input : parseInt(input) || 0);
       }),
 
     /**
@@ -100,12 +113,44 @@ export const appRouter = router({
           query: z.string().optional(),
           callType: z.enum(["exhibition", "residency", "competition", "grant", "award", "fellowship", "curatorial_open_call"]).optional(),
           geographicLevel: z.enum(["regional", "national", "european"]).optional(),
-          minDeadline: z.date().optional(),
-          maxDeadline: z.date().optional(),
+          minDeadline: z.string().optional(),
+          maxDeadline: z.string().optional(),
         })
       )
       .query(async ({ input, ctx }) => {
-        // Get user's subscription level to determine access
+        if (isAirtableConfigured()) {
+          let calls: AirtableCall[] = await getAirtableCalls();
+
+          if (input.query) {
+            const q = input.query.toLowerCase();
+            calls = calls.filter(c =>
+              c.title.toLowerCase().includes(q) ||
+              c.entity.toLowerCase().includes(q)
+            );
+          }
+
+          if (input.callType) {
+            calls = calls.filter(c => c.callType === input.callType);
+          }
+
+          if (input.geographicLevel) {
+            calls = calls.filter(c => c.geographicLevel === input.geographicLevel);
+          }
+
+          if (input.minDeadline) {
+            const min = new Date(input.minDeadline);
+            calls = calls.filter(c => new Date(c.deadline) >= min);
+          }
+
+          if (input.maxDeadline) {
+            const max = new Date(input.maxDeadline);
+            calls = calls.filter(c => new Date(c.deadline) <= max);
+          }
+
+          return calls;
+        }
+
+        // Database fallback
         let userLevel: "base" | "premium" | "pro" = "base";
         if (ctx.user) {
           const subscription = await getUserSubscription(ctx.user.id);
@@ -114,10 +159,8 @@ export const appRouter = router({
           }
         }
 
-        // Get all calls
         let calls = await getAllActiveCalls();
 
-        // Filter by subscription level
         const levelMap: Record<string, string[]> = {
           base: ["regional"],
           premium: ["regional", "national"],
@@ -128,7 +171,6 @@ export const appRouter = router({
           levelMap[userLevel].includes(call.geographicLevel)
         );
 
-        // Apply filters
         if (input.query) {
           const query = input.query.toLowerCase();
           calls = calls.filter(call =>
@@ -146,11 +188,11 @@ export const appRouter = router({
         }
 
         if (input.minDeadline) {
-          calls = calls.filter(call => call.deadline >= input.minDeadline!);
+          calls = calls.filter(call => call.deadline >= new Date(input.minDeadline!));
         }
 
         if (input.maxDeadline) {
-          calls = calls.filter(call => call.deadline <= input.maxDeadline!);
+          calls = calls.filter(call => call.deadline <= new Date(input.maxDeadline!));
         }
 
         return calls;

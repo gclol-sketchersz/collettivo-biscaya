@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Heart, ExternalLink, MapPin, Calendar, Home } from "lucide-react";
+import { Loader as Loader2, Heart, ExternalLink, MapPin, Calendar, Chrome as Home } from "lucide-react";
 import { Link } from "wouter";
 import NavMenu from "@/components/NavMenu";
 import { useState } from "react";
@@ -31,13 +31,14 @@ export default function Calls() {
   const saveMutation = trpc.savedCalls.save.useMutation();
   const removeMutation = trpc.savedCalls.remove.useMutation();
 
-  const savedCallIds = new Set(savedCalls.map((c) => c.id));
+  const savedCallIds = new Set(savedCalls.map((c) => String(c.id)));
 
-  const handleToggleSave = (callId: number) => {
-    if (savedCallIds.has(callId)) {
-      removeMutation.mutate(callId);
+  const handleToggleSave = (callId: string | number) => {
+    const id = String(callId);
+    if (savedCallIds.has(id)) {
+      removeMutation.mutate(typeof callId === "number" ? callId : 0);
     } else {
-      saveMutation.mutate(callId);
+      saveMutation.mutate(typeof callId === "number" ? callId : 0);
     }
   };
 
@@ -203,7 +204,7 @@ export default function Calls() {
               </Card>
             ) : (
               <div className="space-y-4">
-                {calls.map((call) => (
+                {calls.map((call: any) => (
                   <Card key={call.id} className="card-marine p-6 hover:shadow-lg transition-shadow">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
@@ -242,11 +243,11 @@ export default function Calls() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleToggleSave(call.id)}
-                          className={savedCallIds.has(call.id) ? "text-red-500" : ""}
+                          className={savedCallIds.has(String(call.id)) ? "text-red-500" : ""}
                         >
                           <Heart
                             className="w-5 h-5"
-                            fill={savedCallIds.has(call.id) ? "currentColor" : "none"}
+                            fill={savedCallIds.has(String(call.id)) ? "currentColor" : "none"}
                           />
                         </Button>
                         <Link href={`/calls/${call.id}`}>

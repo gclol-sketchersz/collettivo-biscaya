@@ -1,7 +1,7 @@
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Loader2, Heart, ExternalLink, MapPin, Calendar, Users, Award, Home } from "lucide-react";
+import { Loader as Loader2, Heart, ExternalLink, MapPin, Calendar, Users, Award, Chrome as Home } from "lucide-react";
 import { Link, useParams, useLocation } from "wouter";
 import { useState } from "react";
 import NavMenu from "@/components/NavMenu";
@@ -9,7 +9,7 @@ import NavMenu from "@/components/NavMenu";
 export default function CallDetail() {
   const { id } = useParams<{ id: string }>();
   const [, navigate] = useLocation();
-  const callId = parseInt(id || "0");
+  const callId = id || "0";
 
   const { data: call, isLoading } = trpc.calls.getById.useQuery(callId);
   const { data: savedCalls = [] } = trpc.savedCalls.getAll.useQuery();
@@ -17,16 +17,17 @@ export default function CallDetail() {
   const removeMutation = trpc.savedCalls.remove.useMutation();
 
   const [isSaved, setIsSaved] = useState(
-    savedCalls.some((c) => c.id === callId)
+    savedCalls.some((c) => String(c.id) === String(callId))
   );
 
   const handleToggleSave = () => {
+    const numericId = typeof callId === "number" ? callId : parseInt(callId) || 0;
     if (isSaved) {
-      removeMutation.mutate(callId, {
+      removeMutation.mutate(numericId, {
         onSuccess: () => setIsSaved(false),
       });
     } else {
-      saveMutation.mutate(callId, {
+      saveMutation.mutate(numericId, {
         onSuccess: () => setIsSaved(true),
       });
     }
