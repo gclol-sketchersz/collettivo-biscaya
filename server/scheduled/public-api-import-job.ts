@@ -41,16 +41,17 @@ interface ImportResult {
   duration?: number;
 }
 
-export async function publicAPIImportJobHandler(req: Request, res: Response) {
+export async function publicAPIImportJobHandler(req: Request, res: Response): Promise<void> {
   const startTime = Date.now();
   const taskUid = req.headers["x-manus-cron-task-uid"] as string;
 
   // Verify cron-only access
   if (!taskUid) {
-    return res.status(403).json({
+    res.status(403).json({
       error: "cron-only",
       message: "This endpoint is for cron jobs only",
     });
+    return;
   }
 
   const result: ImportResult = {
@@ -216,12 +217,12 @@ export async function publicAPIImportJobHandler(req: Request, res: Response) {
     // This could be extended to create import_sources entries and log each call
 
     result.duration = Date.now() - startTime;
-    return res.json(result);
+    res.json(result);
   } catch (error) {
     console.error("[PublicAPIImportJob] Error:", error);
     result.duration = Date.now() - startTime;
 
-    return res.status(500).json({
+    res.status(500).json({
       ok: false,
       error: String(error),
       context: {

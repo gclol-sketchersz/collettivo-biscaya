@@ -42,7 +42,6 @@ export async function handleMultiSourceImport(req: Request, res: Response): Prom
     res.status(403).json({ error: "Cron authentication required" });
     return;
   }
-
   try {
     console.log("[MultiSourceImportJob] Starting multi-source import job...");
 

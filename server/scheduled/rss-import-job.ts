@@ -58,14 +58,15 @@ function mapRSSCallType(type: string): "exhibition" | "residency" | "competition
 /**
  * Main RSS import job handler
  */
-export async function rssImportJobHandler(req: Request, res: Response) {
+export async function rssImportJobHandler(req: Request, res: Response): Promise<void> {
   const startTime = Date.now();
 
   try {
     // Verify this is a cron request from Manus platform
     const cronTaskUid = req.headers["x-manus-cron-task-uid"];
     if (!cronTaskUid || typeof cronTaskUid !== "string") {
-      return res.status(403).json({ error: "cron-only", message: "This endpoint is for cron jobs only" });
+      res.status(403).json({ error: "cron-only", message: "This endpoint is for cron jobs only" });
+      return;
     }
 
     console.log("[RSSImportJob] Starting RSS import job...");

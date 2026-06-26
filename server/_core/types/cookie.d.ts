@@ -1,6 +1,1 @@
-declare module "cookie" {
-  export function parse(
-    str: string,
-    options?: Record<string, unknown>
-  ): Record<string, string>;
-}
+// cookie@1.0.2 ships its own TypeScript types — no ambient override needed.

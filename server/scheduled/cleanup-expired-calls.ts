@@ -12,13 +12,14 @@ import { removeExpiredCalls, getExpiredCalls } from "../db-automation";
 import { getDb } from "../db";
 import { importLogs } from "../../drizzle/schema";
 
-export async function cleanupExpiredCallsHandler(req: Request, res: Response) {
+export async function cleanupExpiredCallsHandler(req: Request, res: Response): Promise<void> {
   try {
     // Verify this is a cron request from Manus platform
     // The platform sets this header for authenticated cron calls
     const cronTaskUid = req.headers["x-manus-cron-task-uid"];
     if (!cronTaskUid || typeof cronTaskUid !== "string") {
-      return res.status(403).json({ error: "cron-only", message: "This endpoint is for cron jobs only" });
+      res.status(403).json({ error: "cron-only", message: "This endpoint is for cron jobs only" });
+      return;
     }
 
     // Get expired calls before removal (for logging)
