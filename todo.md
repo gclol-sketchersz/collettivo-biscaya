@@ -354,3 +354,11 @@ NOTA: Fase rinviata in quanto richiede credenziali esterne e configurazione aggi
   * Documentare strategia di importazione nel README
   * Creare guida per manutenzione dei job scheduler
   * Salvare checkpoint finale con sistema completamente automatizzato
+
+## Automazione Importazione Bandi - Fase 9 (Continuazione): Implementazione Validazione Autorevolezza (COMPLETATO)
+- [x] Implementazione della validazione basata su autorevolezza
+  * Creato AuthorityScorer con formula di scoring (Fonte 40%, Categoria 30%, Completezza 20%, Recency 10%)
+  * Whitelist di 20+ fonti autorevolezza (Residenze Artistiche, MiBACT, OpenCoesione, Fondazione Sozzani, etc.)
+  * Whitelist di 7 categorie autorevolezza (exhibition, residency, grant, award, fellowship, competition, curatorial)
+  * Sistema di raccomandazioni (accept/review/reject) basato su score
+  * 25 test unitari per il sistema di scoring
