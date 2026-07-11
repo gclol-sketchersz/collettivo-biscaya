@@ -324,3 +324,33 @@ NOTA: Fase rinviata in quanto richiede credenziali esterne e configurazione aggi
   * Competition: 1 bando (GAi, Torino Giovani, ABABO)
 - [x] Verifica copertura completa: 7 categorie + 3 livelli geografici (national, regional, european)
 - [x] Checkpoint finale con copertura completa (versione 4df982d2)
+
+
+## Automazione Importazione Bandi - Fase 9: Pianificazione Importazione Automatica (FASE 1 COMPLETATA)
+- [x] Analisi criteri di autorevolezza e pianificazione strategia (COMPLETATO)
+  * Definire livelli di autorevolezza per fonti (A: istituzioni pubbliche, B: fondazioni verificate, C: piattaforme specializzate)
+  * Mappare fonti per categoria e livello geografico
+  * Definire frequenza di importazione per fonte
+  * Stabilire criteri di validazione per bandi importati
+- [ ] Creazione job scheduler automatico per importazione periodica
+  * Implementare heartbeat job per multi-source import (frequenza: giornaliera)
+  * Implementare heartbeat job per cleanup bandi scaduti (frequenza: giornaliera)
+  * Implementare heartbeat job per validazione autorevolezza (frequenza: settimanale)
+  * Registrare handler Express per tutti i job
+- [ ] Implementazione validazione basata su autorevolezza
+  * Estendere CallValidator con scoring autorevolezza
+  * Implementare filtri per escludere bandi da fonti non autorevolte
+  * Aggiungere logging per tracciare decisioni di importazione
+- [ ] Configurazione cron job di sistema
+  * Creare cron job per importazione automatica (1:00 AM UTC)
+  * Creare cron job per cleanup scaduti (3:00 AM UTC)
+  * Creare cron job per validazione autorevolezza (2:00 AM UTC)
+  * Configurare retry e error handling
+- [ ] Testing e verifica del flusso automatico
+  * Test unitari per job scheduler automatici
+  * Test integrazione per flusso completo
+  * Test di carico per verificare performance
+- [ ] Documentazione e salvataggio checkpoint finale
+  * Documentare strategia di importazione nel README
+  * Creare guida per manutenzione dei job scheduler
+  * Salvare checkpoint finale con sistema completamente automatizzato
