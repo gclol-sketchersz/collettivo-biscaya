@@ -150,10 +150,12 @@ export class ResidenzeArtisticheScraper extends BaseScraper {
    */
   private extractCallType(text: string): string {
     const types = [
+      // Check residency keywords FIRST (most specific for this source)
       { keyword: "residenza", type: "residenza" },
       { keyword: "residenze", type: "residenza" },
       { keyword: "artistiche", type: "residenza" },
       { keyword: "artista", type: "residenza" },
+      // Then check other types
       { keyword: "fellowship", type: "fellowship" },
       { keyword: "borsa", type: "fellowship" },
       { keyword: "premio", type: "premio" },
@@ -161,6 +163,9 @@ export class ResidenzeArtisticheScraper extends BaseScraper {
       { keyword: "mostra", type: "mostra" },
       { keyword: "grant", type: "grant" },
     ];
+    
+    // For Residenze Artistiche, default to residency if no other type is found
+    // This is because the source is specifically for residencies
 
     const lowerText = text.toLowerCase();
     for (const { keyword, type } of types) {

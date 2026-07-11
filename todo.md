@@ -362,3 +362,16 @@ NOTA: Fase rinviata in quanto richiede credenziali esterne e configurazione aggi
   * Whitelist di 7 categorie autorevolezza (exhibition, residency, grant, award, fellowship, competition, curatorial)
   * Sistema di raccomandazioni (accept/review/reject) basato su score
   * 25 test unitari per il sistema di scoring
+
+## Automazione Importazione Bandi - Fase 9 (Continuazione): Attivazione Heartbeat Jobs (COMPLETATO)
+- [x] Esecuzione dello script setup-heartbeat-jobs.mjs
+  * Tutti i 5 heartbeat jobs creati con successo
+  * Job abilitati e schedulati correttamente
+  * Verificato funzionamento tramite log del server
+  * 20 bandi importati nel primo run
+  * Deduplicatore funzionante (0 bandi duplicati nel secondo run)
+- [x] Verifica dei log del server
+  * MultiSourceImportJob: Funzionante
+  * Scraper: Residenze Artistiche (20), Exibart RSS (9), Competition (1), Award (2), Fellowship (22)
+  * Deduplicazione: Funzionante
+  * Importazione: Funzionante
