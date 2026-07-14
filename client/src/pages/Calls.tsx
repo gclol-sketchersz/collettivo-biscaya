@@ -10,13 +10,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader as Loader2, Heart, ExternalLink, MapPin, Calendar, Chrome as Home } from "lucide-react";
+import { Loader as Loader2, Heart, ExternalLink, MapPin, Calendar, Chrome as Home, Lock } from "lucide-react";
 import { Link } from "wouter";
 import NavMenu from "@/components/NavMenu";
 import { useState } from "react";
+import { getLoginUrl } from "@/const";
 
 export default function Calls() {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [query, setQuery] = useState("");
   const [callType, setCallType] = useState<string>("all");
   const [geographicLevel, setGeographicLevel] = useState<string>("all");
@@ -27,13 +28,23 @@ export default function Calls() {
     geographicLevel: geographicLevel && geographicLevel !== "all" ? (geographicLevel as any) : undefined,
   });
 
-  const { data: savedCalls = [] } = trpc.savedCalls.getAll.useQuery();
+  const { data: savedCalls = [] } = trpc.savedCalls.getAll.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
   const saveMutation = trpc.savedCalls.save.useMutation();
   const removeMutation = trpc.savedCalls.remove.useMutation();
 
   const savedCallIds = new Set(savedCalls.map((c) => String(c.id)));
+  
+  // Limit preview for non-authenticated users
+  const displayCalls = isAuthenticated ? calls : calls.slice(0, 20);
+  const isPreview = !isAuthenticated && calls.length > 20;
 
   const handleToggleSave = (callId: string | number) => {
+    if (!isAuthenticated) {
+      window.location.href = getLoginUrl();
+      return;
+    }
     const id = String(callId);
     if (savedCallIds.has(id)) {
       removeMutation.mutate(typeof callId === "number" ? callId : 0);
@@ -91,9 +102,11 @@ export default function Calls() {
                   <Home className="w-5 h-5 text-primary" />
                 </Button>
               </Link>
-              <Link href="/dashboard">
-                <Button variant="ghost">Dashboard</Button>
-              </Link>
+              {isAuthenticated && (
+                <Link href="/dashboard">
+                  <Button variant="ghost">Dashboard</Button>
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -186,7 +199,7 @@ export default function Calls() {
               <div className="flex justify-center py-12">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
-            ) : calls.length === 0 ? (
+            ) : displayCalls.length === 0 ? (
               <Card className="card-marine p-12 text-center">
                 <p className="text-muted-foreground mb-4">
                   Nessun bando trovato con i filtri selezionati.
@@ -204,7 +217,7 @@ export default function Calls() {
               </Card>
             ) : (
               <div className="space-y-4">
-                {calls.map((call: any) => (
+                {displayCalls.map((call: any) => (
                   <Card key={call.id} className="card-marine p-6 hover:shadow-lg transition-shadow">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
@@ -259,6 +272,34 @@ export default function Calls() {
                     </div>
                   </Card>
                 ))}
+                
+                {isPreview && (
+                  <Card className="card-marine p-8 bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-primary">
+                    <div className="text-center">
+                      <Lock className="w-12 h-12 text-primary mx-auto mb-4" />
+                      <h3 className="text-xl font-bold text-foreground mb-2">
+                        Accedi per vedere tutti i bandi
+                      </h3>
+                      <p className="text-muted-foreground mb-6">
+                        Stai visualizzando un'anteprima di {displayCalls.length} bandi su {calls.length} disponibili.
+                      </p>
+                      <div className="flex gap-4 justify-center flex-wrap">
+                        <Button
+                          onClick={() => window.location.href = getLoginUrl()}
+                          size="lg"
+                          className="bg-primary hover:bg-primary/90"
+                        >
+                          Accedi Gratuitamente
+                        </Button>
+                        <Link href="/#pricing">
+                          <Button variant="outline" size="lg">
+                            Vedi i Piani
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </Card>
+                )}
               </div>
             )}
           </div>

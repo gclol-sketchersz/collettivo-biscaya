@@ -1,18 +1,23 @@
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Loader as Loader2, Heart, ExternalLink, MapPin, Calendar, Users, Award, Chrome as Home } from "lucide-react";
+import { Loader as Loader2, Heart, ExternalLink, MapPin, Calendar, Users, Award, Chrome as Home, Lock } from "lucide-react";
 import { Link, useParams, useLocation } from "wouter";
 import { useState } from "react";
 import NavMenu from "@/components/NavMenu";
+import { getLoginUrl } from "@/const";
 
 export default function CallDetail() {
   const { id } = useParams<{ id: string }>();
   const [, navigate] = useLocation();
+  const { isAuthenticated } = useAuth();
   const callId = id || "0";
 
   const { data: call, isLoading } = trpc.calls.getById.useQuery(callId);
-  const { data: savedCalls = [] } = trpc.savedCalls.getAll.useQuery();
+  const { data: savedCalls = [] } = trpc.savedCalls.getAll.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
   const saveMutation = trpc.savedCalls.save.useMutation();
   const removeMutation = trpc.savedCalls.remove.useMutation();
 
@@ -21,6 +26,10 @@ export default function CallDetail() {
   );
 
   const handleToggleSave = () => {
+    if (!isAuthenticated) {
+      window.location.href = getLoginUrl();
+      return;
+    }
     const numericId = typeof callId === "number" ? callId : parseInt(callId) || 0;
     if (isSaved) {
       removeMutation.mutate(numericId, {
@@ -99,22 +108,13 @@ export default function CallDetail() {
             <Link href="/calls">
               <Button variant="ghost">← Torna ai bandi</Button>
             </Link>
-            <Link href="/">
-              <Button variant="ghost" size="icon" title="Torna alla Home">
-                <Home className="w-5 h-5 text-primary" />
-              </Button>
-            </Link>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleToggleSave}
-              className={isSaved ? "text-red-500" : ""}
-            >
-              <Heart
-                className="w-5 h-5"
-                fill={isSaved ? "currentColor" : "none"}
-              />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Link href="/">
+                <Button variant="ghost" size="icon" title="Torna alla Home">
+                  <Home className="w-5 h-5 text-primary" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
@@ -122,157 +122,139 @@ export default function CallDetail() {
       {/* Main Content */}
       <main className="container py-8">
         <div className="grid md:grid-cols-3 gap-8">
-          {/* Main Column */}
-          <div className="md:col-span-2 space-y-8">
-            {/* Title Section */}
-            <div>
-              <h1 className="text-4xl font-bold text-foreground mb-4">
-                {call.title}
-              </h1>
-              <p className="text-lg text-muted-foreground mb-4">{call.entity}</p>
-              <div className="flex flex-wrap gap-3">
-                <span className={`level-indicator ${getLevelColor(call.geographicLevel)}`}>
-                  <MapPin className="w-4 h-4" />
-                  {getLevelLabel(call.geographicLevel)}
-                </span>
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
-                  {getCallTypeLabel(call.callType)}
-                </span>
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
-                  <Calendar className="w-4 h-4" />
-                  Scadenza: {new Date(call.deadline).toLocaleDateString("it-IT")}
-                </span>
+          {/* Main Content */}
+          <div className="md:col-span-2">
+            <Card className="card-marine p-8">
+              <div className="mb-6">
+                <h1 className="text-3xl font-bold text-foreground mb-4">
+                  {call.title}
+                </h1>
+                
+                <div className="flex flex-wrap gap-3 mb-6">
+                  <span className={`level-indicator ${getLevelColor(call.geographicLevel)}`}>
+                    <MapPin className="w-4 h-4" />
+                    {getLevelLabel(call.geographicLevel)}
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+                    {getCallTypeLabel(call.callType)}
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+                    <Calendar className="w-3 h-3" />
+                    Scadenza: {new Date(call.deadline).toLocaleDateString("it-IT")}
+                  </span>
+                </div>
+
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={handleToggleSave}
+                    className={isSaved ? "text-red-500" : ""}
+                  >
+                    <Heart
+                      className="w-4 h-4 mr-2"
+                      fill={isSaved ? "currentColor" : "none"}
+                    />
+                    {isSaved ? "Salvato" : "Salva"}
+                  </Button>
+                  {(call as any).sourceUrl && (
+                    <a href={(call as any).sourceUrl} target="_blank" rel="noopener noreferrer">
+                      <Button variant="default">
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Visita il sito
+                      </Button>
+                    </a>
+                  )}
+                </div>
               </div>
-            </div>
 
-            {/* Info Grid */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <Card className="card-marine p-6">
-                <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-primary" />
-                  Paese
-                </h3>
-                <p className="text-muted-foreground">{call.country}</p>
-              </Card>
-              <Card className="card-marine p-6">
-                <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-primary" />
-                  Scadenza
-                </h3>
-                <p className="text-muted-foreground">
-                  {new Date(call.deadline).toLocaleDateString("it-IT", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
+              {(call as any).description && (
+              <div className="border-t border-border pt-6">
+                <h2 className="text-xl font-semibold text-foreground mb-4">
+                  Descrizione
+                </h2>
+                <p className="text-foreground whitespace-pre-wrap">
+                  {(call as any).description}
                 </p>
-              </Card>
-            </div>
+              </div>
+              )}
 
-            {/* Sections */}
-            {call.requirements && (
-              <Card className="card-marine p-6">
-                <h2 className="text-2xl font-semibold text-foreground mb-4">
-                  Requisiti
-                </h2>
-                <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
-                  <p>{call.requirements}</p>
+              {call.qualitativeNotes && (
+                <div className="border-t border-border pt-6 mt-6">
+                  <h2 className="text-xl font-semibold text-foreground mb-4">
+                    Note
+                  </h2>
+                  <p className="text-foreground">
+                    {call.qualitativeNotes}
+                  </p>
                 </div>
-              </Card>
-            )}
+              )}
 
-            {call.benefits && (
-              <Card className="card-marine p-6">
-                <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center gap-2">
-                  <Award className="w-6 h-6 text-primary" />
-                  Benefici e Offerte
-                </h2>
-                <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
-                  <p>{call.benefits}</p>
+              {call.requirements && (
+                <div className="border-t border-border pt-6 mt-6">
+                  <h2 className="text-xl font-semibold text-foreground mb-4">
+                    Requisiti
+                  </h2>
+                  <p className="text-foreground whitespace-pre-wrap">
+                    {call.requirements}
+                  </p>
                 </div>
-              </Card>
-            )}
-
-            {call.accessibility && (
-              <Card className="card-marine p-6">
-                <h2 className="text-2xl font-semibold text-foreground mb-4">
-                  Accessibilità
-                </h2>
-                <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
-                  <p>{call.accessibility}</p>
-                </div>
-              </Card>
-            )}
-
-            {call.qualitativeNotes && (
-              <Card className="card-marine p-6">
-                <h2 className="text-2xl font-semibold text-foreground mb-4">
-                  Note Qualitative
-                </h2>
-                <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
-                  <p>{call.qualitativeNotes}</p>
-                </div>
-              </Card>
-            )}
+              )}
+            </Card>
           </div>
 
           {/* Sidebar */}
-          <div className="md:col-span-1 space-y-6">
-            {/* Quick Info */}
-            <Card className="card-marine p-6 sticky top-24">
-              <h2 className="text-lg font-semibold text-foreground mb-6">
-                Informazioni Rapide
-              </h2>
-
+          <div className="md:col-span-1">
+            {/* Info Card */}
+            <Card className="card-marine p-6 mb-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
+                Informazioni
+              </h3>
               <div className="space-y-4">
-                {call.costs && (
+                {call.entity && (
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Costi</p>
-                    <p className="font-semibold text-foreground">{call.costs}</p>
+                    <p className="text-sm text-muted-foreground">Ente</p>
+                    <p className="text-foreground font-medium">{call.entity}</p>
                   </div>
                 )}
-
-                <div className="border-t border-border pt-4">
-                  <p className="text-sm text-muted-foreground mb-2">Ente Promotore</p>
-                  <p className="font-semibold text-foreground">{call.entity}</p>
-                </div>
-
-                <div className="border-t border-border pt-4">
-                  <p className="text-sm text-muted-foreground mb-2">Tipo</p>
-                  <p className="font-semibold text-foreground">
-                    {getCallTypeLabel(call.callType)}
-                  </p>
-                </div>
-
-                <div className="border-t border-border pt-4">
-                  <p className="text-sm text-muted-foreground mb-2">Livello</p>
-                  <p className="font-semibold text-foreground">
-                    {getLevelLabel(call.geographicLevel)}
+                {call.country && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Paese</p>
+                    <p className="text-foreground font-medium">{call.country}</p>
+                  </div>
+                )}
+                <div>
+                  <p className="text-sm text-muted-foreground">Scadenza</p>
+                  <p className="text-foreground font-medium">
+                    {new Date(call.deadline).toLocaleDateString("it-IT")}
                   </p>
                 </div>
               </div>
-
-              {call.externalLink && (
-                <a href={call.externalLink} target="_blank" rel="noopener noreferrer">
-                  <Button className="btn-marine w-full mt-6">
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    Vai al Bando
-                  </Button>
-                </a>
-              )}
-
-              <Button
-                variant="outline"
-                className="w-full mt-3"
-                onClick={handleToggleSave}
-              >
-                <Heart
-                  className="w-4 h-4 mr-2"
-                  fill={isSaved ? "currentColor" : "none"}
-                />
-                {isSaved ? "Salvato" : "Salva Bando"}
-              </Button>
             </Card>
+
+            {/* CTA Card */}
+            {!isAuthenticated && (
+              <Card className="card-marine p-6 bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-primary">
+                <Lock className="w-8 h-8 text-primary mb-3" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  Accedi per salvare
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Crea un account per salvare i tuoi bandi preferiti e ricevere notifiche.
+                </p>
+                <Button
+                  onClick={() => window.location.href = getLoginUrl()}
+                  size="sm"
+                  className="w-full bg-primary hover:bg-primary/90 mb-2"
+                >
+                  Accedi Gratuitamente
+                </Button>
+                <Link href="/#pricing">
+                  <Button variant="outline" size="sm" className="w-full">
+                    Vedi i Piani
+                  </Button>
+                </Link>
+              </Card>
+            )}
           </div>
         </div>
       </main>

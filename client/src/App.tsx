@@ -32,12 +32,8 @@ function Router() {
       <Route path="/email-preferences">
         <RequireAuth><EmailPreferences /></RequireAuth>
       </Route>
-      <Route path="/calls">
-        <RequireAuth><Calls /></RequireAuth>
-      </Route>
-      <Route path="/calls/:id">
-        {(params) => <RequireAuth><CallDetail /></RequireAuth>}
-      </Route>
+      <Route path="/calls" component={Calls} />
+      <Route path="/calls/:id" component={CallDetail} />
       <Route path="/advanced-search">
         <RequireAuth><AdvancedSearch /></RequireAuth>
       </Route>
